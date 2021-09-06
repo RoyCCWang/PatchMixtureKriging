@@ -1,20 +1,22 @@
 
+# 1D regression.
+
 import Random
 import PyPlot
 
 using LinearAlgebra
-import Interpolations
-
-#import SignalTools
+#import Interpolations
+using Revise
 
 include("../src/misc/declarations.jl")
 
 include("../src/RKHS/RKHS.jl")
 include("../src/RKHS/kernel.jl")
-#include("../src/RKHS/interpolators.jl")
 
-include("../src/warp_map/Rieszanalysis.jl")
-include("../src/misc/utilities.jl")
+#include("../src/warp_map/Rieszanalysis.jl")
+#include("../src/misc/utilities.jl")
+
+PyPlot.matplotlib["rcParams"][:update](["font.size" => 22, "font.family" => "serif"])
 
 PyPlot.close("all")
 
@@ -23,12 +25,7 @@ Random.seed!(25)
 fig_num = 1
 
 ##### regression
-#θ = Spline34KernelType(0.2)
-θ = BrownianBridge10(1.0)
-#θ = BrownianBridge20(1.0)
-#θ = BrownianBridge1ϵ(4.5)
-#θ = BrownianBridge2ϵ(2.5)
-
+θ = Spline34KernelType(0.2)
 
 σ² = 1e-5
 N = 15

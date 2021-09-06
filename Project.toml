@@ -3,6 +3,9 @@ uuid = "7f4aaa78-ba82-458d-b0a9-a4bcbebf63c4"
 authors = ["Roy <rwang013@uottawa.ca> and contributors"]
 version = "0.1.0"
 
+[deps]
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+
 [compat]
 julia = "1"
 
