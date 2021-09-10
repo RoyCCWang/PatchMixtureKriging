@@ -8,13 +8,7 @@ using LinearAlgebra
 #import Interpolations
 using Revise
 
-include("../src/misc/declarations.jl")
-
-include("../src/RKHS/RKHS.jl")
-include("../src/RKHS/kernel.jl")
-
-#include("../src/warp_map/Rieszanalysis.jl")
-#include("../src/misc/utilities.jl")
+import RKHSRegularization
 
 PyPlot.matplotlib["rcParams"][:update](["font.size" => 22, "font.family" => "serif"])
 
@@ -25,22 +19,28 @@ Random.seed!(25)
 fig_num = 1
 
 ##### regression
-θ = Spline34KernelType(0.2)
+θ = RKHSRegularization.Spline34KernelType(0.04)
 
-σ² = 1e-5
+# user inputs.
+σ² = 1e-3
 N = 15
 
-# if 0 and 1 are included, we have posdef error, or rank = N - 2.
-x_range = LinRange(1e-5, 1.0-1e-5, N)
+x_range = LinRange(-24.0, 45.0, N)
+Nq = 1000
+#xq_range = LinRange(-30.0, 50.0, Nq)
+Nq = 1000
+xq_range = LinRange(x_range[1], x_range[end], Nq)
 
+#DelimitedFiles.writedlm( "query.txt",  xq_range, '\n')
+
+# if 0 and 1 are included, we have posdef error, or rank = N - 2.
 X = collect( [x_range[n]] for n = 1:N )
-coordwrapper = xx->convert2itpindex(xx, X[1], X[end], [length(X)])
 
 f = xx->sinc(4*xx)*xx^3
 y = f.(x_range)
 
 # check posdef.
-K = constructkernelmatrix(X, θ)
+K = RKHSRegularization.constructkernelmatrix(X, θ)
 println("rank(K) = ", rank(K))
 
 println("isposdef = ", isposdef(K))
@@ -48,34 +48,30 @@ println("isposdef = ", isposdef(K))
 
 
 # fit RKHS.
-η = RKHSProblemType( zeros(Float64,length(X)),
+η = RKHSRegularization.RKHSProblemType( zeros(Float64,length(X)),
                      X,
                      θ,
                      σ²)
-fitRKHS!(η, y)
+RKHSRegularization.fitRKHS!(η, y)
 
 
 
 # query.
-Nq = 100
-xq_range = LinRange(0.0, 1.0, Nq)
 xq = collect( [xq_range[n]] for n = 1:Nq )
 
 f_xq = f.(xq_range) # generating function.
 
 yq = Vector{Float64}(undef, Nq)
-query!(yq,xq,η)
+RKHSRegularization.query!(yq,xq,η)
 
 # Visualize regression result.
 PyPlot.figure(fig_num)
 fig_num += 1
 
 PyPlot.plot(X, y, ".", label = "observed")
-PyPlot.plot(xq, yq, label = "query - RKHS")
+PyPlot.plot(xq, yq, label = "GP mean function")
 
-PyPlot.plot(xq, f_xq, label = "true")
-
-title_string = "1-D RKHS demo"
+title_string = "1D GP regression"
 PyPlot.title(title_string)
 PyPlot.legend()
 ##### end of regression

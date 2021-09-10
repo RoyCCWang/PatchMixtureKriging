@@ -17,9 +17,9 @@ module RKHSRegularization
     # import Utilities
     # import SignalTools
     #
-    # import RiemannianOptim
     # import Optim
 
+    import RiemannianOptim # https://gitlab.com/RoyCCWang/riemannianoptim
     using LinearAlgebra
 
     # indirect dependencies.
@@ -45,7 +45,7 @@ module RKHSRegularization
             fitRKHS!,
             query!,
             #fitnDdensity,
-            #fitnDdensityRiemannian,
+            fitnDdensityRiemannian,
             constructkernelmatrix,
             evalkernel,
             #fitpdfviaSDP,
