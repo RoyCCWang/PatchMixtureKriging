@@ -19,7 +19,7 @@ module RKHSRegularization
     #
     # import Optim
 
-    import RiemannianOptim # https://gitlab.com/RoyCCWang/riemannianoptim
+    #import RiemannianOptim # https://gitlab.com/RoyCCWang/riemannianoptim
     using LinearAlgebra
 
     # indirect dependencies.

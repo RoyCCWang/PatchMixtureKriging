@@ -6,9 +6,9 @@ import PyPlot
 
 using LinearAlgebra
 #import Interpolations
-using Revise
+#using Revise
 
-import RKHSRegularization
+import RKHSRegularization # https://github.com/RoyCCWang/RKHSRegularization
 
 PyPlot.matplotlib["rcParams"][:update](["font.size" => 22, "font.family" => "serif"])
 
