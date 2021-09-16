@@ -6,7 +6,8 @@ using LinearAlgebra
 #import Interpolations
 #using Revise
 
-#import .RKHSRegularization # https://github.com/RoyCCWang/RKHSRegularization
+include("../src/RKHSRegularization.jl")
+import .RKHSRegularization # https://github.com/RoyCCWang/RKHSRegularization
 
 PyPlot.matplotlib["rcParams"][:update](["font.size" => 22, "font.family" => "serif"])
 
@@ -24,7 +25,7 @@ U, s, V = svd(X')
 
 u = V[:,1]
 
-function splitpoints(u::Vector{T}, c::T, X::Matrix{T}) where T <: Real
+function splitpoints(u::Vector{T}, X::Matrix{T}) where T <: Real
     
     D, N = size(X)
     indicators = falses(N)
@@ -46,7 +47,7 @@ function splitpoints(u::Vector{T}, c::T, X::Matrix{T}) where T <: Real
 end 
 
 
-flags, functional_evals, c = splitpoints(u, c, X)
+flags, functional_evals, c = splitpoints(u, X)
 X1 = X[:, flags]
 X2 = X[:, .!flags]
 
