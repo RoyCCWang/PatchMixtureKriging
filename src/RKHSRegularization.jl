@@ -21,6 +21,9 @@ module RKHSRegularization
 
     #import RiemannianOptim # https://gitlab.com/RoyCCWang/riemannianoptim
     using LinearAlgebra
+    import Statistics
+    
+    using AbstractTrees
 
     # indirect dependencies.
     #import VisualizationTools
@@ -34,6 +37,9 @@ module RKHSRegularization
     #include("./RKHS/ODEkernels.jl")
     ##include("./RKHS/interpolators.jl")
     include("./RKHS/querying.jl")
+
+    include("./patchwork/partition.jl")
+    include("./misc/utilities.jl")
 
     #include("./RKHS/derivatives/SqExp_derivatives.jl")
 

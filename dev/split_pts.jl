@@ -25,29 +25,8 @@ U, s, V = svd(X')
 
 u = V[:,1]
 
-function splitpoints(u::Vector{T}, X::Matrix{T}) where T <: Real
-    
-    D, N = size(X)
-    indicators = falses(N)
-
-    functional_evals = collect( dot(u, X[:,n]) for n = 1:N )
-    c = Statistics.median(functional_evals)
-
-    for n = 1:N
-        
-        if functional_evals[n] < c
-
-            indicators[n] = true
-        else
-            indicators[n] = false
-        end
-    end
-
-    return indicators, functional_evals, c
-end 
-
-
-flags, functional_evals, c = splitpoints(u, X)
+X_set = collect( X[:,n] for n = 1:size(X,2) )
+flags, functional_evals, c = RKHSRegularization.splitpoints(u, X_set)
 X1 = X[:, flags]
 X2 = X[:, .!flags]
 

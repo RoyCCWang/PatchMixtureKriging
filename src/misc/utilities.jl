@@ -1,5 +1,18 @@
 
 
+function array2matrix(X::Vector{Vector{T}})::Matrix{T} where T
+
+    N = length(X)
+    D = length(X[1])
+
+    out = Matrix{T}(undef,D,N)
+    for n = 1:N
+        out[:,n] = X[n]
+    end
+
+    return out
+end
+
 ###########  density fit-related
 
 # Boyd's convex optimization convention: log(-2) := Inf.
