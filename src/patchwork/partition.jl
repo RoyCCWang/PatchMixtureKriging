@@ -1,7 +1,11 @@
 
+
 mutable struct HyperplaneType{T}
     v::Vector{T}
     c::T
+    
+    HyperplaneType{T}(v,c) where T = new{T}(v,c)
+    HyperplaneType{T}() where T = new{T}()
 end
 
 mutable struct PartitionDataType{T}
@@ -21,6 +25,12 @@ mutable struct BinaryNode{T}
     BinaryNode{T}(data, parent::BinaryNode{T}) where T = new{T}(data, parent)
 end
 BinaryNode(data) = BinaryNode{typeof(data)}(data)
+
+mutable struct PatchGPType{T}
+    root::BinaryNode{PartitionDataType{T}}
+    level::Int
+end
+
 
 """
 Mutates parent. Taken from AbstractTrees.jl's example code.
@@ -83,7 +93,7 @@ function gethyperplane(X::Vector{Vector{T}}) where T
     v = V[:,1]
 
     indicators, functional_evals, c = splitpoints(v, X)
-    hp = HyperplaneType(v, c)
+    hp = HyperplaneType{T}(v, c)
 
     return hp, indicators
 end
@@ -127,14 +137,14 @@ function createchildren(parent,
     if direction == "left"
 
         X_kid = X_p[left_indicators]
-        data = PartitionDataType(hp, X_kid)
+        data = PartitionDataType(HyperplaneType{T}(), X_kid)
 
         kid = leftchild!(parent, data)
 
     else
         right_indicators = .! left_indicators
         X_kid = X_p[right_indicators]
-        data = PartitionDataType(hp, X_kid)
+        data = PartitionDataType(HyperplaneType{T}(), X_kid)
 
         kid = rightchild!(parent, data)
     end
@@ -153,6 +163,7 @@ function createchildren(parent,
 
     # get hyperplane.
     hp_kid, left_indicators_kid = gethyperplane(X_kid)
+    kid.data.hp = hp_kid
 
     createchildren(kid, hp_kid, left_indicators_kid, "left", X_kid, level-1)
     createchildren(kid, hp_kid, left_indicators_kid, "right", X_kid, level-1)
@@ -182,6 +193,52 @@ function buildXpart!(X_parts::Vector{Vector{Vector{T}}}, p::BinaryNode{Partition
 
     return nothing
 end
+
+
+
+
+#### visualize 2D.
+
+# dot(u,x)+c = 0 to y = m*x + b.
+function get2Dline(u::Vector{T}, c::T) where T
+
+    m = -u[1]/u[2]
+    b = c/u[2]
+
+    return m, b
+end
+
+function getpartitionlines2D!(y_set::Vector{Vector{T}}, 
+    t_set,
+    node::BinaryNode{PartitionDataType{T}},
+    level::Int,
+    min_t, max_t, max_N_t::Int,
+    constraints_WIP) where T
+
+    # draw line.
+    m, b = get2Dline(node.data.hp.v, node.data.hp.c)
+    t = LinRange(min_t, max_t, max_N_t)
+    y = m .* t .+ b
+
+    # prune according to constraints.
+
+    # store.
+    push!(y_set, collect(y))
+    push!(t_set, collect(t))
+
+    # do not recurse at the level before leaf nodes, which is level 1.
+    if level != 2
+
+        # recurse.
+        getpartitionlines2D!(y_set, t_set, node.left, level-1, min_t, max_t, max_N_t, constraints_WIP)
+        getpartitionlines2D!(y_set, t_set, node.right, level-1, min_t, max_t, max_N_t, constraints_WIP)
+    end
+
+    return nothing
+end
+
+
+
 
 ###### search.
 
