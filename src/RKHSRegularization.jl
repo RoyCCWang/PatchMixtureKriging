@@ -22,6 +22,7 @@ module RKHSRegularization
     #import RiemannianOptim # https://gitlab.com/RoyCCWang/riemannianoptim
     using LinearAlgebra
     import Statistics
+    #import Colors
     
     using AbstractTrees
 
@@ -40,6 +41,9 @@ module RKHSRegularization
 
     include("./patchwork/partition.jl")
     include("./misc/utilities.jl")
+
+
+    include("./patchwork/visualize_2D.jl")
 
     #include("./RKHS/derivatives/SqExp_derivatives.jl")
 
