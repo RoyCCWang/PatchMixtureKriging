@@ -1,3 +1,5 @@
+# Use PCA to split points. SVD implementation.
+
 import Random
 import PyPlot
 import Statistics
@@ -31,17 +33,23 @@ fig_num = 1
 
 D = 2
 N = 200
-PyPlot.close("all")
+#X = randn(D,N)
 
-Random.seed!(25)
+import Distributions
 
-fig_num = 1
+μ = randn(D)
+Σ = randn(D,D)
+Σ = Σ'*Σ
+dist = Distributions.MvNormal(μ, Σ)
+X = rand(dist, N)
 
-D = 2
-N = 200
-X = randn(D,N)
+# ceneterd data matrix: zero mean and transposed.
+Z = collect( X[:,n] - μ for n = 1:size(X,2) )
+Z_mat = RKHSRegularization.array2matrix(Z)
+Z_mat = Z_mat'
 
-U, s, V = svd(X')
+
+U, s, V = svd(Z_mat)
 
 u = V[:,1]
 
@@ -69,8 +77,10 @@ fig_num += 1
 
 PyPlot.scatter(X1[1,:], X1[2,:], label = "X1")
 PyPlot.scatter(X2[1,:], X2[2,:], label = "X2")
-PyPlot.plot(t, y)
+#PyPlot.plot(y, t)
+PyPlot.plot(t,y)
 
 title_string = "split points"
 PyPlot.title(title_string)
 PyPlot.legend()
+PyPlot.axis("equal")
