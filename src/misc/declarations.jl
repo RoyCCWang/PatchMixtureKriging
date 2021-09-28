@@ -11,6 +11,19 @@ struct GaussianKernelODEType{T} <: ODEKernelType
     s::T # amplitude scale.
 end
 
+### patch GP types.
+
+# single kernel for all partitions.
+mutable struct PatchGPType{KT,T}
+    #
+    X_parts::Vector{Vector{Vector{T}}}
+    #θ_set::Vector{KT}
+    θ::KT
+
+    K_XX_set::Vector{Matrix{T}}
+
+    PatchGPType{KT,T}(X_parts::Vector{Vector{Vector{T}}}, θ::KT) where {KT,T} = new{KT,T}(X_parts, θ)
+end
 
 ### elemntary Kernels.
 

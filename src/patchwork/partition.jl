@@ -11,6 +11,7 @@ end
 mutable struct PartitionDataType{T}
     hp::HyperplaneType{T}
     X::Vector{Vector{T}}
+    index::Int
 end
 
 mutable struct BinaryNode{T}
@@ -25,11 +26,6 @@ mutable struct BinaryNode{T}
     BinaryNode{T}(data, parent::BinaryNode{T}) where T = new{T}(data, parent)
 end
 BinaryNode(data) = BinaryNode{typeof(data)}(data)
-
-mutable struct PatchGPType{T}
-    root::BinaryNode{PartitionDataType{T}}
-    level::Int
-end
 
 
 """
@@ -112,7 +108,7 @@ function setuppartition(X::Vector{Vector{T}}, level) where T
     hp, left_indicators = gethyperplane(X)
     X_empty = Vector{Vector{T}}(undef, 0)
 
-    data = PartitionDataType(hp, X_empty)
+    data = PartitionDataType(hp, X_empty, 0)
 
     # add to current node.
     root = BinaryNode(data)
@@ -121,9 +117,27 @@ function setuppartition(X::Vector{Vector{T}}, level) where T
     createchildren(root, hp, left_indicators, "left", X, level-1)
     createchildren(root, hp, left_indicators, "right", X, level-1)
     
-    return root
+    # assign consecutive whole numbers as indices for the leaf nodes.
+    X_parts = labelleafnodes(root, level)
+
+    return root, X_parts
 end
 
+function labelleafnodes(root::BinaryNode{PartitionDataType{T}}, levels::Int) where T
+    #
+    
+    X_parts = Vector{Vector{Vector{Float64}}}(undef, 0)
+
+    i = 0
+    for node in AbstractTrees.Leaves(root)
+        
+        i += 1
+        node.data.index = i
+        push!(X_parts, node.data.X)
+    end
+
+    return X_parts
+end
 
 # might need to include other data, like kernel matrix, etc. at the leaf nodes.
 """
@@ -141,14 +155,14 @@ function createchildren(parent,
     if direction == "left"
 
         X_kid = X_p[left_indicators]
-        data = PartitionDataType(HyperplaneType{T}(), X_kid)
+        data = PartitionDataType(HyperplaneType{T}(), X_kid, 0)
 
         kid = leftchild!(parent, data)
 
     else
         right_indicators = .! left_indicators
         X_kid = X_p[right_indicators]
-        data = PartitionDataType(HyperplaneType{T}(), X_kid)
+        data = PartitionDataType(HyperplaneType{T}(), X_kid, 0)
 
         kid = rightchild!(parent, data)
     end
@@ -176,36 +190,46 @@ function createchildren(parent,
 end
 
 #### get all leaves.
-function buildXpart!(X_parts::Vector{Vector{Vector{T}}}, p::BinaryNode{PartitionDataType{T}}) where T
+# function buildXpart!(X_parts::Vector{Vector{Vector{T}}}, p::BinaryNode{PartitionDataType{T}}) where T
 
-    #
-    if !isdefined(p, :left) && !isdefined(p, :right)
-        # p is a leaf node. Add its X to X_parts.
-        push!(X_parts, p.data.X)
+#     #
+#     if !isdefined(p, :left) && !isdefined(p, :right)
+#         # p is a leaf node. Add its X to X_parts.
+#         push!(X_parts, p.data.X)
 
-        return nothing
-    end
+#         return nothing
+#     end
 
-    # call itself to traverse again.
-    if isdefined(p, :left)
-        buildXpart!(X_parts, p.left)
-    end
+#     # call itself to traverse again.
+#     if isdefined(p, :left)
+#         buildXpart!(X_parts, p.left)
+#     end
 
-    if isdefined(p, :right)
-        buildXpart!(X_parts, p.right)
-    end
-
-    return nothing
-end
-
+#     if isdefined(p, :right)
+#         buildXpart!(X_parts, p.right)
+#     end
+    
+#     return nothing
+# end
 
 ###### search.
 
 """
 Given a point and the tree, find the leaf node of the tree that corresponds to the region that contains this point.
 """
-function myfunc()
+function findpartition(x::Vector{T},
+    root::BinaryNode{PartitionDataType{T}},
+    levels::Int) where T
 
     #
+    node = root
+    for l = 1:levels-1
+        if dot(node.data.hp.v, x) < node.data.hp.c
+            node = node.left
+        else
+            node = node.right
+        end
+    end
 
+    return node.data.index
 end

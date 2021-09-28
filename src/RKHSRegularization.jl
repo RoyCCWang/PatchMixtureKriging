@@ -35,6 +35,9 @@ module RKHSRegularization
 
     include("./RKHS/RKHS.jl")
     include("./RKHS/kernel.jl")
+
+    include("./RKHS/patchwork_RKHS.jl")
+
     #include("./RKHS/ODEkernels.jl")
     ##include("./RKHS/interpolators.jl")
     include("./RKHS/querying.jl")

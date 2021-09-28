@@ -20,6 +20,9 @@ import .RKHSRegularization # https://github.com/RoyCCWang/RKHSRegularization
 
 PyPlot.close("all")
 
+PyPlot.matplotlib["rcParams"][:update](["font.size" => 22, "font.family" => "serif"])
+
+
 Random.seed!(25)
 
 fig_num = 1
@@ -59,6 +62,19 @@ function visualize2Dpartition(X_parts::Vector{Vector{Vector{T}}},
         x2 = collect( X[n][2] for n = 1:length(X))
 
         PyPlot.scatter(x1, x2, label = "$(i)", color = colours_for_pts[i])
+
+        # annotate centroid.
+        z1, z2 = Statistics.mean(X)
+        # PyPlot.annotate("$(i)",
+        # xy=[z1;z2],
+        # xycoords="data",
+        # fontsize=20.0,
+        # #bbox = ["boxstyle"=>"rarrow,pad=0.3", "fc"=>"cyan", "ec"=>"b", "lw"=>2])
+        # bbox = (z1,z2, z1+0.5, z2+0.5) )
+
+        #PyPlot.text(z1, z2, "$(i)", backgroundcolor = "white")
+        bbox = Dict("boxstyle"=>"round, pad=0.3", "fc"=>"cyan", "ec"=>"b", "lw"=>2)
+        PyPlot.text(z1, z2, "$(i)", bbox = bbox)
     end
 
     ### boundaries of partitions.
@@ -72,6 +88,7 @@ function visualize2Dpartition(X_parts::Vector{Vector{Vector{T}}},
        # PyPlot.plot(t_set[i], y_set[i], color = colours_for_boundaries[i])
        PyPlot.plot(t_set[i], y_set[i], color = "black")
     end
+    
 
     PyPlot.title(title_string)
     PyPlot.legend()
@@ -84,7 +101,7 @@ N = 500
 X = collect( randn(D) for n = 1:N )
 levels = 2 # 2^(levels-1) leaf nodes. Must be larger than 1.
 
-root = RKHSRegularization.setuppartition(X, levels)
+root, X_parts = RKHSRegularization.setuppartition(X, levels)
 
 # # print using AbstractTrees.
 # AbstractTrees.printnode(io::IO, node::RKHSRegularization.BinaryNode) = print(io, node.data)
@@ -92,8 +109,8 @@ root = RKHSRegularization.setuppartition(X, levels)
 
 ### visualize tree.
 # traverse all leaf nodes.
-X_parts = Vector{Vector{Vector{Float64}}}(undef, 0)
-RKHSRegularization.buildXpart!(X_parts, root)
+# X_parts = Vector{Vector{Vector{Float64}}}(undef, 0)
+# RKHSRegularization.buildXpart!(X_parts, root)
 
 
 centroid = Statistics.mean( Statistics.mean(X_parts[i]) for i = 1:length(X_parts) )
@@ -107,26 +124,19 @@ max_N_t = 5000
 RKHSRegularization.getpartitionlines!(y_set, t_set, root, levels, min_t, max_t, max_N_t, centroid, max_dist)
 
 fig_num = visualize2Dpartition(X_parts, y_set, t_set, fig_num, "levels = $(levels)")
-
-
 
 
 
 
 levels = 3 # 2^(levels-1) leaf nodes. Must be larger than 1.
 
-root = RKHSRegularization.setuppartition(X, levels)
+root, X_parts = RKHSRegularization.setuppartition(X, levels)
 
 # # print using AbstractTrees.
 # AbstractTrees.printnode(io::IO, node::RKHSRegularization.BinaryNode) = print(io, node.data)
 # AbstractTrees.print_tree(root)
 
 ### visualize tree.
-# traverse all leaf nodes.
-X_parts = Vector{Vector{Vector{Float64}}}(undef, 0)
-RKHSRegularization.buildXpart!(X_parts, root)
-
-
 centroid = Statistics.mean( Statistics.mean(X_parts[i]) for i = 1:length(X_parts) )
 max_dist = maximum( maximum( norm(X_parts[i][j]-centroid) for j = 1:length(X_parts[i])) for i = 1:length(X_parts) ) * 1.1
 
@@ -138,26 +148,18 @@ max_N_t = 5000
 RKHSRegularization.getpartitionlines!(y_set, t_set, root, levels, min_t, max_t, max_N_t, centroid, max_dist)
 
 fig_num = visualize2Dpartition(X_parts, y_set, t_set, fig_num, "levels = $(levels)")
-
-
-
 
 
 
 levels = 4 # 2^(levels-1) leaf nodes. Must be larger than 1.
 
-root = RKHSRegularization.setuppartition(X, levels)
+root, X_parts = RKHSRegularization.setuppartition(X, levels)
 
 # # print using AbstractTrees.
 # AbstractTrees.printnode(io::IO, node::RKHSRegularization.BinaryNode) = print(io, node.data)
 # AbstractTrees.print_tree(root)
 
 ### visualize tree.
-# traverse all leaf nodes.
-X_parts = Vector{Vector{Vector{Float64}}}(undef, 0)
-RKHSRegularization.buildXpart!(X_parts, root)
-
-
 centroid = Statistics.mean( Statistics.mean(X_parts[i]) for i = 1:length(X_parts) )
 max_dist = maximum( maximum( norm(X_parts[i][j]-centroid) for j = 1:length(X_parts[i])) for i = 1:length(X_parts) ) * 1.1
 
@@ -169,26 +171,17 @@ max_N_t = 5000
 RKHSRegularization.getpartitionlines!(y_set, t_set, root, levels, min_t, max_t, max_N_t, centroid, max_dist)
 
 fig_num = visualize2Dpartition(X_parts, y_set, t_set, fig_num, "levels = $(levels)")
-
-
-
-
 
 
 levels = 5 # 2^(levels-1) leaf nodes. Must be larger than 1.
 
-root = RKHSRegularization.setuppartition(X, levels)
+root, X_parts = RKHSRegularization.setuppartition(X, levels)
 
 # # print using AbstractTrees.
 # AbstractTrees.printnode(io::IO, node::RKHSRegularization.BinaryNode) = print(io, node.data)
 # AbstractTrees.print_tree(root)
 
 ### visualize tree.
-# traverse all leaf nodes.
-X_parts = Vector{Vector{Vector{Float64}}}(undef, 0)
-RKHSRegularization.buildXpart!(X_parts, root)
-
-
 centroid = Statistics.mean( Statistics.mean(X_parts[i]) for i = 1:length(X_parts) )
 max_dist = maximum( maximum( norm(X_parts[i][j]-centroid) for j = 1:length(X_parts[i])) for i = 1:length(X_parts) ) * 1.1
 
@@ -200,3 +193,12 @@ max_N_t = 5000
 RKHSRegularization.getpartitionlines!(y_set, t_set, root, levels, min_t, max_t, max_N_t, centroid, max_dist)
 
 fig_num = visualize2Dpartition(X_parts, y_set, t_set, fig_num, "levels = $(levels)")
+
+
+
+#### test partition search given points. Write as unit stress test later.
+
+x = [0.42; 2.05] # leaf node 11
+x = [0.1; 0.16] # leaf node 9
+x = [3.99; 3.35] # leaf node 16
+ind = RKHSRegularization.findpartition(x, root, levels)
