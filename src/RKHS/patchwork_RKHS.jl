@@ -17,7 +17,7 @@ function setuppatchGP!(X_parts::Vector{Vector{Vector{T}}},
     end
 
     boundary_labels, bb_positive_list, bb_negative_list,
-    Xb_positive_list, Xb_negative_list = setupboundaryXobjects(X_parts)
+    Xb_positive_list, Xb_negative_list = setupboundaryquantities(X_parts)
 
     ### K_bb.
 
@@ -45,24 +45,29 @@ function setupboundaryquantities(X_parts::Vector{Vector{Vector{T}}}) where T
             boundary_labels[a] = (i,j)
         end
     end
+    N_boundaries = length(boundary_labels)
 
     ### mark part of the non-zero entries of K_bb.
     bb_positive_list = Vector{Tuple{Int,Int}}(undef,0)
     bb_negative_list = Vector{Tuple{Int,Int}}(undef,0)
 
-    for j = 2:M
-        for i = 1:j-1
-            k, l = boundary_labels[i]
-            u, v = boundary_labels[j]
+    #for j = 2:M
+        #for i = 1:j-1
+    for m1 = 1:N_boundaries
+        for m2 = 1:N_boundaries
+
+            k, l = boundary_labels[m1]
+            u, v = boundary_labels[m2]
             
             if (k == u && l != v) || (k != u && l == v)
                 
-                push!(bb_positive_list, (i,j))
+                push!(bb_positive_list, (m1,m2))
             
-            elseif (k==v && l != u) || (k!=v && l == v)
+            elseif (k==v && l != u) || (k!=v && l == u)
                 
-                push!(bb_negative_list, (i,j))
+                push!(bb_negative_list, (m1,m2))
             end
+
         end
     end
     
@@ -72,19 +77,19 @@ function setupboundaryquantities(X_parts::Vector{Vector{Vector{T}}}) where T
     Xb_negative_list = Vector{Tuple{Int,Int}}(undef,0)
 
     # number of training data inputs, i.e., excluding patchwork/boundary inputs.
-    N_X = sum( length(X_parts[n]) for n = 1:length(X_parts) )
+    N_X = sum( length(X_parts[n]) for n = 1:N_parts )
 
-    for j = 1:length(boundary_labels)
-        for i = 1:N_X
+    for m = 1:N_boundaries
+        for j = 1:N_parts
 
-            part_ind = div(i, N_parts) +1
-            k, l = boundary_labels[j]
+            #part_ind = div(i, N_parts) +1
+            k, l = boundary_labels[m]
 
-            if k == part_ind
-                push!(Xb_positive_list, (i,j))
+            if k == j
+                push!(Xb_positive_list, (m,j))
             
-            elseif l == part_ind
-                push!(Xb_positive_list, (i,j))
+            elseif l == j
+                push!(Xb_positive_list, (m,j))
             end
         end
     end

@@ -202,3 +202,11 @@ x = [0.42; 2.05] # leaf node 11
 x = [0.1; 0.16] # leaf node 9
 x = [3.99; 3.35] # leaf node 16
 ind = RKHSRegularization.findpartition(x, root, levels)
+
+
+####### kernel matrix contruction.
+
+boundary_labels, bb_positive_list, bb_negative_list,
+Xb_positive_list, Xb_negative_list = RKHSRegularization.setupboundaryquantities(X_parts)
+
+# here. why are the lists beyond 16?
