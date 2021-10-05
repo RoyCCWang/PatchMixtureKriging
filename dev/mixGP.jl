@@ -46,7 +46,7 @@ X_parts = collect( collect( randn(D) for n = 1:N ) for n = 1:N_parts )
 
 B = RKHSRegularization.PatchGPType{typeof(θ), Float64}(X_parts, θ)
 
-A = RKHSRegularization.setuppatchGP!(B)
+A = RKHSRegularization.setupmixtureGP(B)
 
 @assert 1==2
 

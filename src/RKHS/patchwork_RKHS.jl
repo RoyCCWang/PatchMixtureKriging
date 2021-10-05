@@ -2,6 +2,7 @@
 ### implements the coveriance matrices as described in Patchwork Kriging for Large-scale Gaussian Process Regression 
 # https://jmlr.org/papers/v19/17-042.html
 
+
 function setuppatchGP!(X_parts::Vector{Vector{Vector{T}}},
     θ::KT) where {T,KT}
 
@@ -97,6 +98,9 @@ function setupboundaryquantities(X_parts::Vector{Vector{Vector{T}}}) where T
     return boundary_labels, bb_positive_list, bb_negative_list,
         Xb_positive_list, Xb_negative_list
 end
+# ####### patchworkGP: kernel matrix contruction.
+# boundary_labels, bb_positive_list, bb_negative_list,
+# Xb_positive_list, Xb_negative_list = RKHSRegularization.setupboundaryquantities(X_parts)
 
 # pause development since the GP inducing-point styled approx. inference could be very slow.
 # instead, work on the mixture of GP idea.
