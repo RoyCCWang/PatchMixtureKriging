@@ -98,8 +98,5 @@ function setupboundaryquantities(X_parts::Vector{Vector{Vector{T}}}) where T
         Xb_positive_list, Xb_negative_list
 end
 
-
-function myfunc()
-    #
-
-end
+# pause development since the GP inducing-point styled approx. inference could be very slow.
+# instead, work on the mixture of GP idea.
