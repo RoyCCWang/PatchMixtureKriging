@@ -101,7 +101,7 @@ N = 500
 X = collect( randn(D) for n = 1:N )
 levels = 2 # 2^(levels-1) leaf nodes. Must be larger than 1.
 
-root, X_parts = RKHSRegularization.setuppartition(X, levels)
+root, X_parts, _ = RKHSRegularization.setuppartition(X, levels)
 
 # # print using AbstractTrees.
 # AbstractTrees.printnode(io::IO, node::RKHSRegularization.BinaryNode) = print(io, node.data)
@@ -130,7 +130,7 @@ fig_num = visualize2Dpartition(X_parts, y_set, t_set, fig_num, "levels = $(level
 
 levels = 3 # 2^(levels-1) leaf nodes. Must be larger than 1.
 
-root, X_parts = RKHSRegularization.setuppartition(X, levels)
+root, X_parts, _ = RKHSRegularization.setuppartition(X, levels)
 
 # # print using AbstractTrees.
 # AbstractTrees.printnode(io::IO, node::RKHSRegularization.BinaryNode) = print(io, node.data)
@@ -153,7 +153,7 @@ fig_num = visualize2Dpartition(X_parts, y_set, t_set, fig_num, "levels = $(level
 
 levels = 4 # 2^(levels-1) leaf nodes. Must be larger than 1.
 
-root, X_parts = RKHSRegularization.setuppartition(X, levels)
+root, X_parts, _ = RKHSRegularization.setuppartition(X, levels)
 
 # # print using AbstractTrees.
 # AbstractTrees.printnode(io::IO, node::RKHSRegularization.BinaryNode) = print(io, node.data)
@@ -175,7 +175,7 @@ fig_num = visualize2Dpartition(X_parts, y_set, t_set, fig_num, "levels = $(level
 
 levels = 5 # 2^(levels-1) leaf nodes. Must be larger than 1.
 
-root, X_parts = RKHSRegularization.setuppartition(X, levels)
+root, X_parts, _ = RKHSRegularization.setuppartition(X, levels)
 
 # # print using AbstractTrees.
 # AbstractTrees.printnode(io::IO, node::RKHSRegularization.BinaryNode) = print(io, node.data)

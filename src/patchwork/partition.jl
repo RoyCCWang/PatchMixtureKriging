@@ -11,6 +11,7 @@ end
 mutable struct PartitionDataType{T}
     hp::HyperplaneType{T}
     X::Vector{Vector{T}}
+    global_X_indices::Vector{Int}
     index::Int
 end
 
@@ -106,40 +107,55 @@ function setuppartition(X::Vector{Vector{T}}, level) where T
 
     # get hyperplane.
     hp, left_indicators = gethyperplane(X)
+    
     X_empty = Vector{Vector{T}}(undef, 0)
+    #data = PartitionDataType(hp, X_empty, 0)
 
-    data = PartitionDataType(hp, X_empty, 0)
+    X_empty_inds = Vector{Int}(undef, 0)
+    data = PartitionDataType(hp, X_empty, X_empty_inds, 0)
 
     # add to current node.
     root = BinaryNode(data)
 
     # might have to use recursion.
-    createchildren(root, hp, left_indicators, "left", X, level-1)
-    createchildren(root, hp, left_indicators, "right", X, level-1)
+    X_inds = collect(1:length(X))
+    createchildren(root, left_indicators, "left", X, X_inds, level-1)
+    createchildren(root, left_indicators, "right", X, X_inds, level-1)
     
     # assign consecutive whole numbers as indices for the leaf nodes.
-    X_parts = labelleafnodes(root, level)
+    X_parts, X_parts_inds = labelleafnodes(root, X)
 
-    return root, X_parts
+    return root, X_parts, X_parts_inds
 end
 
-function labelleafnodes(root::BinaryNode{PartitionDataType{T}}, levels::Int) where T
+function labelleafnodes(root::BinaryNode{PartitionDataType{T}},
+    X::Vector{Vector{T}}) where T
     #
     
     X_parts = Vector{Vector{Vector{Float64}}}(undef, 0)
+    X_parts_inds = Vector{Vector{Int}}(undef, 0)
     leaves = Vector{BinaryNode{PartitionDataType{T}}}(undef, 0)
 
     i = 0
     for node in AbstractTrees.Leaves(root)
         
+        # label.
         i += 1
         node.data.index = i
-        push!(X_parts, node.data.X)
+        
+        # get X_parts.
+        push!(X_parts, X[node.data.global_X_indices])
+        push!(X_parts_inds, node.data.global_X_indices)
+        
+        # sanity check.
+        if !isempty(node.data.X)
+            @assert norm(node.data.X-X_parts[end]) < 1e-10
+        end
         
         #push!(node, leaves) # cache for speed.
     end
 
-    return X_parts
+    return X_parts, X_parts_inds
 end
 
 # might need to include other data, like kernel matrix, etc. at the leaf nodes.
@@ -148,46 +164,54 @@ X_p is X associated with parent.
 If the input level value is 1, then kid is a leaf node.
 """
 function createchildren(parent,
-    hp, left_indicators, direction, X_p::Vector{Vector{T}}, 
+    left_indicators, direction, X_p::Vector{Vector{T}}, X_p_inds::Vector{Int},
     level::Int;
-    store_X_for_every_node::Bool = false) where T
+    store_X_flag::Bool = false) where T
 
     ## prepare children data.
     X_kid = Vector{Vector{T}}(undef, 0)
+    X_kid_inds = Vector{Int}(undef, 0)
 
     if direction == "left"
 
         X_kid = X_p[left_indicators]
-        data = PartitionDataType(HyperplaneType{T}(), X_kid, 0)
+        X_kid_inds = X_p_inds[left_indicators]
+        data = PartitionDataType(HyperplaneType{T}(), X_kid, X_kid_inds, 0)
 
         kid = leftchild!(parent, data)
 
     else
         right_indicators = .! left_indicators
         X_kid = X_p[right_indicators]
-        data = PartitionDataType(HyperplaneType{T}(), X_kid, 0)
+        X_kid_inds = X_p_inds[right_indicators]
+        data = PartitionDataType(HyperplaneType{T}(), X_kid, X_kid_inds, 0)
 
         kid = rightchild!(parent, data)
     end
 
     if level == 1
         ## kid is a leaf node. Stop propagation.
+
+        if !store_X_flag
+            # do not store inputs leaf nodes.
+            kid.data.X = Vector{Vector{T}}(undef, 0)
+        end
+        
         return nothing
     end
 
     ## kid is not a leaf node. Propagate.
 
-    if !store_X_for_every_node
-        # do not store inputs at non-leaf nodes.
-        kid.data.X = Vector{Vector{T}}(undef, 0)
-    end
+    # do not store inputs and input info at non-leaf nodes. It is not used during query: i.e., findpartition().
+    kid.data.X = Vector{Vector{T}}(undef, 0)
+    kid.data.global_X_indices = Vector{Int}(undef, 0)
 
     # get hyperplane.
     hp_kid, left_indicators_kid = gethyperplane(X_kid)
     kid.data.hp = hp_kid
 
-    createchildren(kid, hp_kid, left_indicators_kid, "left", X_kid, level-1)
-    createchildren(kid, hp_kid, left_indicators_kid, "right", X_kid, level-1)
+    createchildren(kid, left_indicators_kid, "left", X_kid, X_kid_inds, level-1)
+    createchildren(kid, left_indicators_kid, "right", X_kid, X_kid_inds, level-1)
 
     return nothing
 end

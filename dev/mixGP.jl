@@ -59,11 +59,18 @@ X = collect( randn(D) for n = 1:N )
 y = f.(X)
 
 
-@assert 1==4
+
 
 levels = 3 # 2^(levels-1) leaf nodes. Must be larger than 1.
 
-root, X_parts = RKHSRegularization.setuppartition(X, levels)
+root, X_parts, X_parts_inds = RKHSRegularization.setuppartition(X, levels)
+
+# following should be the same.
+U1 = X_parts[3]
+U2 = X[X_parts_inds[3]]
+
+
+@assert 1==4
 
 # # print using AbstractTrees.
 # AbstractTrees.printnode(io::IO, node::RKHSRegularization.BinaryNode) = print(io, node.data)
