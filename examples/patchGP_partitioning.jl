@@ -206,3 +206,6 @@ ind = RKHSRegularization.findpartition(x, root, levels)
 
 
 ####### mixtureGP: kernel matrix contruction.
+
+boundary_labels, bb_positive_list, bb_negative_list,
+    Xb_positive_list, Xb_negative_list = RKHSRegularization.setupboundaryquantities(X_parts)

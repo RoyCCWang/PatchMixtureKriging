@@ -26,7 +26,7 @@ function setuppatchGP!(X_parts::Vector{Vector{Vector{T}}},
 
     ### think about fast serach for queryX and queryb.
 
-    return A
+    return boundary_labels
 end
 
 

@@ -127,6 +127,7 @@ function labelleafnodes(root::BinaryNode{PartitionDataType{T}}, levels::Int) whe
     #
     
     X_parts = Vector{Vector{Vector{Float64}}}(undef, 0)
+    leaves = Vector{BinaryNode{PartitionDataType{T}}}(undef, 0)
 
     i = 0
     for node in AbstractTrees.Leaves(root)
@@ -134,6 +135,8 @@ function labelleafnodes(root::BinaryNode{PartitionDataType{T}}, levels::Int) whe
         i += 1
         node.data.index = i
         push!(X_parts, node.data.X)
+        
+        #push!(node, leaves) # cache for speed.
     end
 
     return X_parts
@@ -212,7 +215,7 @@ end
 #     return nothing
 # end
 
-###### search.
+###### search-related.
 
 """
 Given a point and the tree, find the leaf node of the tree that corresponds to the region that contains this point.
@@ -232,4 +235,31 @@ function findpartition(x::Vector{T},
     end
 
     return node.data.index
+end
+
+
+"""
+Given a point, the tree, a radius, and hyperplanes, find all hyperplanes that intersect a ball centered at x with the supplied radius.
+"""
+function findnearbyboundaries(root::BinaryNode{PartitionDataType{T}}) where T
+    #
+    
+    X_parts = Vector{Vector{Vector{Float64}}}(undef, 0)
+    leaves = Vector{BinaryNode{PartitionDataType{T}}}(undef, 0)
+
+    i = 0
+    for node in AbstractTrees.Leaves(root)
+        
+        i += 1
+        node.data.index = i
+        push!(X_parts, node.data.X)
+        
+        # colision detection of a circle and line.
+        # https://stackoverflow.com/questions/1073336/circle-line-segment-collision-detection-algorithm
+        # allow all regions, even not connected to X_q, to participate.
+        #   hopefully this makes the math analysis easier, since avoid some if-else statements.
+        
+    end
+
+    return X_parts
 end

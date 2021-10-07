@@ -43,6 +43,8 @@ module RKHSRegularization
     include("./RKHS/querying.jl")
 
     include("./patchwork/partition.jl")
+    include("./RKHS/mixtureGP.jl")
+
     include("./misc/utilities.jl")
 
 
