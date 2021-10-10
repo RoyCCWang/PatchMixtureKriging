@@ -241,6 +241,7 @@ end
 
 ###### search-related.
 
+# Time critical.
 """
 Given a point and the tree, find the leaf node of the tree that corresponds to the region that contains this point.
 """
@@ -248,7 +249,6 @@ function findpartition(x::Vector{T},
     root::BinaryNode{PartitionDataType{T}},
     levels::Int) where T
 
-    #
     node = root
     for l = 1:levels-1
         if dot(node.data.hp.v, x) < node.data.hp.c

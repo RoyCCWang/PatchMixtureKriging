@@ -19,6 +19,10 @@ import .RKHSRegularization # https://github.com/RoyCCWang/RKHSRegularization
 import Utilities
 import VisualizationTools
 
+
+include("../examples/helpers/visualization.jl")
+
+
 PyPlot.close("all")
 
 PyPlot.matplotlib["rcParams"][:update](["font.size" => 22, "font.family" => "serif"])
@@ -42,9 +46,9 @@ N = 32
 f = xx->sinc((norm(xx)/3.2)^2)*(norm(xx)/4)^3
 
 #### visualize the oracle.
-N_array = [100; 100]
-limit_a = [-5.0; -5.0]
-limit_b = [5.0; 5.0]
+N_array = [100; 200]
+limit_a = [-5.0; -10.0]
+limit_b = [5.0; 10.0]
 x_ranges = collect( LinRange(limit_a[d], limit_b[d], N_array[d]) for d = 1:D )
 X_nD = Utilities.ranges2collection(x_ranges, Val(D))
 
@@ -52,6 +56,7 @@ f_X_nD = f.(X_nD)
 
 fig_num = VisualizationTools.visualizemeshgridpcolor(x_ranges,
 f_X_nD, [], "x", fig_num, "Oracle")
+# top left is origin, Downwards is positive x2, To the right is positive x1.
 
 #### sample from oracle.
 
@@ -66,11 +71,12 @@ levels = 3 # 2^(levels-1) leaf nodes. Must be larger than 1.
 root, X_parts, X_parts_inds = RKHSRegularization.setuppartition(X, levels)
 
 # following should be the same.
-U1 = X_parts[3]
-U2 = X[X_parts_inds[3]]
+y_parts = collect( y[X_parts_inds[n]] for n = 1:length(X_parts_inds))
 
 
-@assert 1==4
+
+
+# @assert 1==4
 
 # # print using AbstractTrees.
 # AbstractTrees.printnode(io::IO, node::RKHSRegularization.BinaryNode) = print(io, node.data)
@@ -87,29 +93,21 @@ max_t = 5.0
 max_N_t = 5000
 RKHSRegularization.getpartitionlines!(y_set, t_set, root, levels, min_t, max_t, max_N_t, centroid, max_dist)
 
-# fig_num = visualize2Dpartition(X_parts, y_set, t_set, fig_num, "levels = $(levels)")
+fig_num, ax = visualize2Dpartition(X_parts, y_set, t_set, fig_num, "levels = $(levels)")
 
+ax[:set_ylim]([limit_a[1],limit_b[1]])
+ax[:set_xlim]([limit_a[2],limit_b[2]])
 
-@assert 5==4
+#@assert 5==4
 
-K = RKHSRegularization.constructkernelmatrix(X, θ)
+#K = RKHSRegularization.constructkernelmatrix(X, θ)
 
-N_parts = 5
-X_parts = collect( collect( randn(D) for n = 1:N ) for n = 1:N_parts )
+#N_parts = 5
+#X_parts = collect( collect( randn(D) for n = 1:N ) for n = 1:N_parts )
 
 #B = RKHSRegularization.mixtureGPType{typeof(θ), Float64}(X_parts, θ)
 
-y_parts = collect( TODO for n = 1:N_parts )
 A = RKHSRegularization.setupmixtureGP(X_parts, y_parts, θ, σ²)
-
-@assert 1==2
-
-# check posdef.
-
-println("rank(K) = ", rank(K))
-
-println("isposdef = ", isposdef(K))
-
 
 
 # fit RKHS.
@@ -119,6 +117,7 @@ println("isposdef = ", isposdef(K))
                      σ²)
 RKHSRegularization.fitRKHS!(η, y)
 
+@assert 4==5
 
 
 # query.
