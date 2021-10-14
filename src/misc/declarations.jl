@@ -11,34 +11,7 @@ struct GaussianKernelODEType{T} <: ODEKernelType
     s::T # amplitude scale.
 end
 
-### mixture GP types.
 
-# single kernel for all partitions.
-mutable struct MixtureGPType{T}
-    #
-    X_parts::Vector{Vector{Vector{T}}}
-    c_set::Vector{Vector{T}}
-
-    # can probably delte the following.
-    σ²_set::Vector{T}
-    K_set::Vector{Matrix{T}}
-
-    boundary_labels::Vector{Tuple{Int,Int}}
-
-    #MixtureGPType{KT,T}(X_parts::Vector{Vector{Vector{T}}}, θ::KT) where {KT,T} = new{KT,T}(X_parts, θ)
-end
-
-function MixtureGPType(X_parts::Vector{Vector{Vector{T}}},
-    boundary_labels) where T
-    N = length(X_parts)
-
-    c_set = Vector{Vector{T}}(undef, N)
-    σ²_set = Vector{T}(undef, N)
-    K_set = Vector{Matrix{T}}(undef, N)
-    
-
-    return MixtureGPType(X_parts, c_set, σ²_set, K_set, boundary_labels)
-end
 
 ### elemntary Kernels.
 

@@ -295,6 +295,7 @@ function evalkernel(x1, x2::T, θ::StationaryKernelType)::T where T
 end
 
 # This is the canonical kernel: spline 34.
+# outputs 1 at τ = 0, outputs 0 at τ >= 1.
 function evalkernel(τ::T, θ::Spline34KernelType) where T
 
     r::T = τ*θ.a[1]

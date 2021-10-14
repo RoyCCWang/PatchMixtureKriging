@@ -35,7 +35,7 @@ fig_num = 1
 θ = RKHSRegularization.Spline34KernelType(1.0)
 D = 2
 σ² = 1e-5
-N = 32
+N = 850
 
 # if 0 and 1 are included, we have posdef error, or rank = N - 2.
 #x_range = LinRange(-1, 2, N)
@@ -47,8 +47,8 @@ f = xx->sinc((norm(xx)/3.2)^2)*(norm(xx)/4)^3
 
 #### visualize the oracle.
 N_array = [100; 200]
-limit_a = [-5.0; -10.0]
-limit_b = [5.0; 10.0]
+limit_a = [-5.0; -10.0] # y,x 
+limit_b = [5.0; 10.0]# y,x
 x_ranges = collect( LinRange(limit_a[d], limit_b[d], N_array[d]) for d = 1:D )
 X_nD = Utilities.ranges2collection(x_ranges, Val(D))
 
@@ -60,7 +60,10 @@ f_X_nD, [], "x", fig_num, "Oracle")
 
 #### sample from oracle.
 
-X = collect( randn(D) for n = 1:N )
+#X = collect( randn(D) for n = 1:N )
+
+X = collect( [Utilities.convertcompactdomain(rand(), 0.0, 1.0, limit_a[1], limit_b[1]);
+Utilities.convertcompactdomain(rand(), 0.0, 1.0, limit_a[2], limit_b[2])] for n = 1:N )
 y = f.(X)
 
 
@@ -94,6 +97,7 @@ max_N_t = 5000
 RKHSRegularization.getpartitionlines!(y_set, t_set, root, levels, min_t, max_t, max_N_t, centroid, max_dist)
 
 fig_num, ax = visualize2Dpartition(X_parts, y_set, t_set, fig_num, "levels = $(levels)")
+PyPlot.axis("scaled")
 
 ax[:set_ylim]([limit_a[1],limit_b[1]])
 ax[:set_xlim]([limit_a[2],limit_b[2]])
@@ -106,39 +110,33 @@ ax[:set_xlim]([limit_a[2],limit_b[2]])
 #X_parts = collect( collect( randn(D) for n = 1:N ) for n = 1:N_parts )
 
 #B = RKHSRegularization.mixtureGPType{typeof(θ), Float64}(X_parts, θ)
-
-A = RKHSRegularization.setupmixtureGP(X_parts, y_parts, θ, σ²)
-
+hps = RKHSRegularization.fetchhyperplanes(root)
+η = RKHSRegularization.MixtureGPType(X_parts, hps)
 
 # fit RKHS.
-η = RKHSRegularization.RKHSProblemType( zeros(Float64,length(X)),
-                     X,
-                     θ,
-                     σ²)
-RKHSRegularization.fitRKHS!(η, y)
-
-@assert 4==5
-
+println("Begin query:")
+@time RKHSRegularization.fitmixtureGP!(η, y_parts, θ, σ²)
+println()
 
 # query.
-Nq = 1000
-xq_range = LinRange(x_range[1], x_range[end], Nq)
-xq = collect( [xq_range[n]] for n = 1:Nq )
+Xq = vec(X_nD)
 
-f_xq = f.(xq_range) # generating function.
+Yq = Vector{Float64}(undef, 0)
+Vq = Vector{Float64}(undef, 0)
 
-yq = Vector{Float64}(undef, Nq)
-RKHSRegularization.query!(yq,xq,η)
+# for RBF profile.
+weight_θ = RKHSRegularization.Spline34KernelType(1.0)
+#RKHSRegularization.evalkernel(0.9, weight_θ)
 
-# Visualize regression result.
-PyPlot.figure(fig_num)
-fig_num += 1
+radius = 0.3
+δ = 1e-5
+RKHSRegularization.querymixtureGP!(Yq, Vq, Xq, η, root, levels, radius, δ, θ, σ², weight_θ)
 
-PyPlot.plot(X, y, ".", label = "observed")
-PyPlot.plot(xq, yq, "--", label = "query - RKHS")
+q_X_nD = reshape(Yq, size(f_X_nD))
 
-PyPlot.plot(xq, f_xq, label = "true")
+fig_num = VisualizationTools.visualizemeshgridpcolor(x_ranges,
+q_X_nD, [], "x", fig_num, "Yq")
 
-title_string = "1-D RKHS demo"
-PyPlot.title(title_string)
-PyPlot.legend()
+# I am here. figure out the coordinate system once and for all. then, figure out why
+# there are gaps along the boundary.
+# then, compare with full GP.

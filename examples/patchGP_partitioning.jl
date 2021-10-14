@@ -171,6 +171,7 @@ fig_num, ax = visualize2Dpartition(X_parts, y_set, t_set, fig_num, "levels = $(l
 
 
 
+
 #p = randn(D) # test point.
 p = x
 
@@ -185,7 +186,7 @@ hps = RKHSRegularization.fetchhyperplanes(root)
 
 radius = 0.2
 δ = 1e-5
-region_inds, zs, hps_keep_flags = RKHSRegularization.findneighbourpartitions(p, radius, root, levels, hps, p_region_ind; δ = δ)
+region_inds, ts, zs, hps_keep_flags = RKHSRegularization.findneighbourpartitions(p, radius, root, levels, hps, p_region_ind; δ = δ)
 
 # debug.
 hps_kept = hps[hps_keep_flags]
@@ -194,7 +195,11 @@ u = hp.v
 c = hp.c
 
 z_kept = zs[hps_keep_flags]
+t_kept = ts[hps_keep_flags]
 #z = z_kept[1]
+
+dists = collect( norm(z_kept[i]-p) for i = 1:length(z_kept) )
+@assert norm( dists - abs.(t_kept) ) < 1e-10 # sanity check.
 
 # visualize on fresh plot.
 fig_num, ax = visualize2Dpartition(X_parts, y_set, t_set, fig_num, "levels = $(levels)")
