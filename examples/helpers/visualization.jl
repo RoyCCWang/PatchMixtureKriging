@@ -64,3 +64,37 @@ function visualize2Dpartition(X_parts::Vector{Vector{Vector{T}}},
 
     return fig_num, ax
 end
+
+
+function visualizemeshgridpcolorx1horizontal( x_ranges::Vector{LinRange{T}},
+    Y::Matrix{T},
+    marker_locations::Vector,
+    marker_symbol::String,
+    fig_num::Int,
+    title_string::String;
+    x1_title_string::String = "Dimension 1",
+    x2_title_string::String = "Dimension 2",
+    cmap = "Greens_r") where T <: Real
+
+    #
+    @assert length(x_ranges) == 2
+    x_coords = collect( collect(x_ranges[d]) for d = 1:2 )
+
+    PyPlot.figure(fig_num)
+    fig_num += 1
+    PyPlot.pcolormesh(x_coords[1], x_coords[2], Y, cmap = cmap, shading = "auto")
+    PyPlot.xlabel(x1_title_string)
+    PyPlot.ylabel(x2_title_string)
+    PyPlot.title(title_string)
+
+    for i = 1:length(marker_locations)
+        #pt = reverse(marker_locations[i])
+        pt = marker_locations[i]
+        PyPlot.annotate(marker_symbol, xy=pt, xycoords="data")
+    end
+
+    PyPlot.plt.colorbar()
+    PyPlot.axis("scaled")
+
+    return fig_num
+end

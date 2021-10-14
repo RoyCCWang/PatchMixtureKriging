@@ -46,15 +46,20 @@ N = 850
 f = xx->sinc((norm(xx)/3.2)^2)*(norm(xx)/4)^3
 
 #### visualize the oracle.
-N_array = [100; 200]
-limit_a = [-5.0; -10.0] # y,x 
-limit_b = [5.0; 10.0]# y,x
+N_array = [100; 200] # number of samples x1, x2.
+limit_a = [-5.0; -10.0] # min x1, x2.
+limit_b = [5.0; 10.0] # max x1, x2.
 x_ranges = collect( LinRange(limit_a[d], limit_b[d], N_array[d]) for d = 1:D )
-X_nD = Utilities.ranges2collection(x_ranges, Val(D))
+
+#X_nD = Utilities.ranges2collection(x_ranges, Val(D)) # x1 is vertical.
+
+# force x1 to be horizontal instead of vertical.
+X_nD = Utilities.ranges2collection(reverse(x_ranges), Val(D)) # x1 is horizontal.
 
 f_X_nD = f.(X_nD)
 
-fig_num = VisualizationTools.visualizemeshgridpcolor(x_ranges,
+#fig_num = VisualizationTools.visualizemeshgridpcolor(x_ranges,
+fig_num = visualizemeshgridpcolorx1horizontal(x_ranges,
 f_X_nD, [], "x", fig_num, "Oracle")
 # top left is origin, Downwards is positive x2, To the right is positive x1.
 
@@ -99,8 +104,8 @@ RKHSRegularization.getpartitionlines!(y_set, t_set, root, levels, min_t, max_t, 
 fig_num, ax = visualize2Dpartition(X_parts, y_set, t_set, fig_num, "levels = $(levels)")
 PyPlot.axis("scaled")
 
-ax[:set_ylim]([limit_a[1],limit_b[1]])
-ax[:set_xlim]([limit_a[2],limit_b[2]])
+ax[:set_xlim]([limit_a[1],limit_b[1]]) # x1 is horizontal (x).
+ax[:set_ylim]([limit_a[2],limit_b[2]]) # x2 is vertical (y).
 
 #@assert 5==4
 
@@ -121,6 +126,11 @@ println()
 # query.
 Xq = vec(X_nD)
 
+# resize!(Xq, 1)
+# Xq[1] = [-0.02; 6.7]
+# Xq[1] = [-10.0, -5.0]
+# Xq[1] = [-2.58, 9.13]
+
 Yq = Vector{Float64}(undef, 0)
 Vq = Vector{Float64}(undef, 0)
 
@@ -134,7 +144,7 @@ RKHSRegularization.querymixtureGP!(Yq, Vq, Xq, η, root, levels, radius, δ, θ,
 
 q_X_nD = reshape(Yq, size(f_X_nD))
 
-fig_num = VisualizationTools.visualizemeshgridpcolor(x_ranges,
+fig_num = visualizemeshgridpcolorx1horizontal(x_ranges,
 q_X_nD, [], "x", fig_num, "Yq")
 
 # I am here. figure out the coordinate system once and for all. then, figure out why
