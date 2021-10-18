@@ -170,13 +170,26 @@ RKHSRegularization.getpartitionlines!(y_set, t_set, root, levels, min_t, max_t, 
 fig_num, ax = visualize2Dpartition(X_parts, y_set, t_set, fig_num, "levels = $(levels)")
 
 
+### work on a training set that is different than the partition.
+ε = 0.3
+X_set, X_set_inds, region_list_set,
+problematic_inds = RKHSRegularization.organizetrainingsets(root, levels, X, ε)
+
+fig_num = visualizesingleregions(X_set, y_set, t_set, fig_num)
+
+N2 = collect( length(X_set[n]) for n = 1:length(X_set) )
+N1 = collect( length(X_parts[n]) for n = 1:length(X_parts) )
+println("N: X_parts: ", N1)
+println("N: X_set:   ", N2)
+println()
+
 
 
 #p = randn(D) # test point.
 p = x
 
 # find the region for p.
-p_region_ind = RKHSRegularization.findpartition(x, root, levels)
+p_region_ind = RKHSRegularization.findpartition(p, root, levels)
 println("p_region_ind = ", p_region_ind)
 println()
 
@@ -184,7 +197,7 @@ println()
 hps = RKHSRegularization.fetchhyperplanes(root)
 @assert length(hps) == length(X_parts) - 1 # sanity check.
 
-radius = 0.2
+radius = ε #0.3
 δ = 1e-5
 region_inds, ts, zs, hps_keep_flags = RKHSRegularization.findneighbourpartitions(p, radius, root, levels, hps, p_region_ind; δ = δ)
 

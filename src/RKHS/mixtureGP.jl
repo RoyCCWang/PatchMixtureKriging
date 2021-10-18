@@ -1,6 +1,38 @@
 
 ### mixture GP types.
 
+mutable struct MixtureGPDebugType{T}
+    
+    w_tilde_set::Vector{Vector{T}}
+    u_set::Vector{Vector{T}}
+    v_set::Vector{Vector{T}}
+    
+    region_inds_set::Vector{Vector{Int}}
+    p_region_ind_set::Vector{Int}
+    
+    hps_keep_flags_set::Vector{BitVector}
+    zs_set::Vector{Vector{Vector{T}}}
+    ts_set::Vector{Vector{T}}
+end
+
+function MixtureGPDebugType(dummy_val::T) where T
+
+    w_tilde_set = Vector{Vector{T}}(undef, 0)
+    u_set = Vector{Vector{T}}(undef, 0)
+    v_set = Vector{Vector{T}}(undef, 0)
+    
+    region_inds_set = Vector{Vector{Int}}(undef, 0)
+    p_region_ind_set = Vector{Int}(undef, 0)
+
+    hps_keep_flags_set = Vector{BitVector}(undef, 0)
+    zs_set = Vector{Vector{Vector{T}}}(undef, 0)
+    ts_set = Vector{Vector{T}}(undef, 0)
+
+    return MixtureGPDebugType{T}(w_tilde_set, u_set, v_set,
+    region_inds_set, p_region_ind_set, hps_keep_flags_set,
+    zs_set, ts_set)
+end
+
 # single kernel for all partitions.
 mutable struct MixtureGPType{T}
     #
@@ -77,6 +109,45 @@ function fitmixtureGP!(η::MixtureGPType{T},
     return η
 end
 
+function querymixtureGP(xq::Vector{T},
+    η::MixtureGPType{T},
+    root,
+    levels,
+    radius::T, 
+    δ::T, # tolerance for partition search.
+    θ::KT, σ²,
+    weight_θ;
+    debug_flag = false) where {KT, T}
+
+    Xq = Vector{Vector{T}}(undef, 1)
+    Xq[1] = xq
+
+    return querymixtureGP(Xq, η::MixtureGPType{T}, root, levels,
+    radius, δ, θ, σ², weight_θ; debug_flag = debug_flag)
+end
+
+function querymixtureGP(Xq::Vector{Vector{T}},
+    η::MixtureGPType{T},
+    root,
+    levels,
+    radius::T, 
+    δ::T, # tolerance for partition search.
+    θ::KT, σ²,
+    weight_θ;
+    debug_flag = false) where {KT, T}
+
+    Yq = Vector{T}(undef, 0)
+    Vq = Vector{T}(undef, 0)
+
+    debug_vars = MixtureGPDebugType(one(T))
+
+    querymixtureGP!(Yq, Vq,
+    Xq, η, root, levels, radius, δ, θ, σ², weight_θ,
+    debug_vars; debug_flag = debug_flag)
+
+    return Yq, Vq, debug_vars
+end
+
 function querymixtureGP!(Yq::Vector{T},
     Vq::Vector{T},
     Xq::Vector{Vector{T}},
@@ -86,7 +157,9 @@ function querymixtureGP!(Yq::Vector{T},
     radius::T, 
     δ::T, # tolerance for partition search.
     θ::KT, σ²,
-    weight_θ) where {KT, T}
+    weight_θ,
+    debug_vars::MixtureGPDebugType{T};
+    debug_flag = false)::Nothing where {KT, T}
 
     c_set = η.c_set
     X_parts = η.X_parts
@@ -96,6 +169,21 @@ function querymixtureGP!(Yq::Vector{T},
     Nq = length(Xq)
     resize!(Yq, Nq)
     resize!(Vq, Nq)
+
+    # debug.
+    fill!(Yq, -20.0)
+    fill!(Yq, -20.0)
+    if debug_flag
+        resize!(debug_vars.w_tilde_set, Nq)
+        resize!(debug_vars.u_set, Nq)
+        resize!(debug_vars.v_set, Nq)
+        resize!(debug_vars.region_inds_set, Nq) # Vector{Vector{Int}}
+        resize!(debug_vars.p_region_ind_set, Nq) # Vector{Int}
+
+        resize!(debug_vars.hps_keep_flags_set, Nq)
+        resize!(debug_vars.zs_set, Nq)
+        resize!(debug_vars.ts_set, Nq)
+    end
 
     # intermediates.
     kq = Vector{T}(undef, 0)
@@ -132,6 +220,27 @@ function querymixtureGP!(Yq::Vector{T},
 
         u[end], v[end] = queryinner!(kq, xq, X_parts[p_region_ind], θ, c_set[p_region_ind])
 
+        #debug.
+        if debug_flag
+            # w_set[j] = zeros(T, N_total_regions)
+
+            # for r = 1:N_regions
+            #     w_set[j][r] = w[r]
+            # end
+            # w_set[j][p_region_ind] = w[end]
+
+            debug_vars.w_tilde_set[j] = copy(w)
+            debug_vars.u_set[j] = copy(u)
+            debug_vars.v_set[j] = copy(v)
+
+            debug_vars.region_inds_set[j] = region_inds
+            debug_vars.p_region_ind_set[j] = p_region_ind
+
+            debug_vars.hps_keep_flags_set[j] = hps_keep_flags
+            debug_vars.zs_set[j] = zs
+            debug_vars.ts_set[j] = ts
+        end
+
         # normalize to get a convex combination.
         sum_w = sum(w)
         for i = 1:length(w)
@@ -143,6 +252,24 @@ function querymixtureGP!(Yq::Vector{T},
         
         #Vq[j] = dot(w,diagm(v)*w)
         Vq[j] = dot(w, v .* w) # faster.
+
+        # # hack.
+        # Yq[j] = u[end]
+        # Vq[j] = v[end]
+
+        # ## debug.
+        # if debug_flag
+        #     println("p_region_ind = ", p_region_ind)
+        #     println("region_inds = ", region_inds)
+        #     println("ts = ", ts)
+        #     println("zs = ", zs)
+        #     println("hps_keep_flags = ", hps_keep_flags)
+        #     println("w = ", w)
+        #     println("u = ", u)
+        #     println("v = ", v)
+        #     #println("kq = ", kq)
+        #     println()
+        # end
     end
 
     return nothing
@@ -155,7 +282,8 @@ function queryinner!(kq::Vector{T}, xq, X, θ, c) where T
     resize!(kq, length(X))
 
     for i = 1:length(X)
-        kq[i] = evalkernel(xq, X[i], θ)
+        #kq[i] = evalkernel(norm(xq-X[i]), θ) # figure this out later.
+        kq[i] = evalkernel(xq, X[i], θ) # figure this out later.
     end
     
     # mean.
@@ -167,6 +295,10 @@ function queryinner!(kq::Vector{T}, xq, X, θ, c) where T
     vq = -1.23 # TODO placeholder for now.
 
     return μq, vq
+end
+
+function queryinner(xq::Vector{T}, X, θ, c) where T
+    return queryinner!(Vector{T}(undef, 0), xq, X, θ, c)
 end
 
 function fetchhyperplanes(root::BinaryNode{PartitionDataType{T}}) where T
@@ -241,6 +373,9 @@ function findneighbourpartitions(p::Vector{T},
 
                 j += 1
                 region_inds[j] = z1_region_ind
+                if z1_region_ind == p_region_ind
+                    region_inds[j] = z2_region_ind
+                end
                 
             end
         end
@@ -250,3 +385,5 @@ function findneighbourpartitions(p::Vector{T},
 
     return region_inds, ts, zs, keep_flags
 end
+
+
