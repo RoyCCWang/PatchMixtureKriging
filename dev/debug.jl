@@ -99,7 +99,7 @@ debug_vars_set = collect( q_Xq_tuple[n][end] for n = 1:length(t_xq))
 N_regions = length(X_parts)
 
 
-Ws_tilde, Us, Ps = parsedebugvarsset(N_regions, debug_vars_set, 1.0)
+Ws_tilde, Us, Ps, Rs = parsedebugvarsset(N_regions, debug_vars_set, 1.0)
 
 
 # diagnose weights.
@@ -130,6 +130,19 @@ PyPlot.legend()
 
 
 
+println("q_all(Xq[86]) = ")
+display(q_all(Xq[86]))
+
+println("Us[86] = ")
+display(Us[86])
+
+println("Ps[86] = ")
+display(Ps[86])
+
+println("Rs[86] = ")
+display(Rs[86])
+
+println()
 
 # figure out why blending is not available for one side.
 # next, try adaptive RKHS.

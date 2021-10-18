@@ -208,11 +208,20 @@ function querymixtureGP!(Yq::Vector{T},
         resize!(u, N_regions+1)
         resize!(v, N_regions+1)
 
-        for r = 1:N_regions
-            
-            w[r] = RKHSRegularization.evalkernel(abs(t_kept[r]), weight_θ)
+        # debug.
+        fill!(w, -8.70)
+        fill!(u, -8.70)
 
-            u[r], v[r] = queryinner!(kq, xq, X_parts[r], θ, c_set[r])
+        for i = 1:N_regions
+
+            r = region_inds[i]
+
+            # i is index for objects returned by findneighbourpartitions()
+            # r is the global region index, which is used by objects from η.
+            
+            w[i] = RKHSRegularization.evalkernel(abs(t_kept[i]), weight_θ)
+
+            u[i], v[i] = queryinner!(kq, xq, X_parts[r], θ, c_set[r])
         end
 
         # u, v, w for the region that contains xq.

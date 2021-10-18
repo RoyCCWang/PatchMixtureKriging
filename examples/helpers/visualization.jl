@@ -138,7 +138,7 @@ function parsedebugvarsset(N_regions::Int, debug_vars_set, dummy_val::T) where T
     # allocate.
     Ws_tilde = Vector{Vector{T}}(undef, Nq)
     Us = Vector{Vector{T}}(undef, Nq)
-    #Rs = Vector{Vector{Int}}
+    Rs = Vector{Vector{Int}}(undef, Nq)
     Ps = Vector{Int}(undef, Nq)
 
     for j = 1:Nq
@@ -172,13 +172,14 @@ function parsedebugvarsset(N_regions::Int, debug_vars_set, dummy_val::T) where T
         Us[j][p_region_ind] = u[end]
 
         Ps[j] = p_region_ind
+        Rs[j] = region_inds
 
         #hps_keep_flags_set = debug_vars_set[j].hps_keep_flags_set_set[1]
         #zs_set = debug_vars_set[j].zs_set_set[1]
         #ts_set = debug_vars_set[j].ts_set_set[1]
     end
 
-    return Ws_tilde, Us, Ps
+    return Ws_tilde, Us, Ps, Rs
 end
 
 
