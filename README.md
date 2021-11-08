@@ -5,6 +5,8 @@
 
 This package is under construction.
 
+To install, start Julia REPL, press `]`, and run the command `https://github.com/RoyCCWang/RKHSRegularization`
+
 Example folder:
 `IBB1D.jl` is a 1D regression example using the iterated Brownian bridge kernel.
 

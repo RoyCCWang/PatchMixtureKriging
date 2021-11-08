@@ -64,6 +64,15 @@ module RKHSRegularization
             constructkernelmatrix,
             evalkernel,
             #fitpdfviaSDP,
-            evalquery
+            evalquery,
+
+            # mixGP.
+            setuppartition,
+            getpartitionlines!,
+            organizetrainingsets,
+            fetchhyperplanes,
+            MixtureGPType,
+            MixtureGPDebugType,
+            fitmixtureGP!
 
 end # module

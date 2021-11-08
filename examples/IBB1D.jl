@@ -16,8 +16,8 @@ import Interpolations
 # include("../src/warp_map/Rieszanalysis.jl")
 # include("../src/misc/utilities.jl")
 
-include("../src/RKHSRegularization.jl")
-import .RKHSRegularization # https://github.com/RoyCCWang/RKHSRegularization
+#include("../src/RKHSRegularization.jl")
+import RKHSRegularization # https://github.com/RoyCCWang/RKHSRegularization
 
 
 PyPlot.close("all")
