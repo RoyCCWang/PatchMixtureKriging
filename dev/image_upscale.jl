@@ -18,9 +18,9 @@ import SpecialFunctions
 
 import SignalTools
 
-import Utilities
+import Utilities # https://gitlab.com/RoyCCWang/utilities
 
-import VisualizationTools
+import VisualizationTools # https://gitlab.com/RoyCCWang/visualizationtools
 import ProbabilityUtilities
 
 import Convex

@@ -16,8 +16,8 @@ import RKHSRegularization # https://github.com/RoyCCWang/RKHSRegularization
 
 #PyPlot.matplotlib["rcParams"][:update](["font.size" => 22, "font.family" => "serif"])
 
-import Utilities
-import VisualizationTools
+import Utilities # https://gitlab.com/RoyCCWang/utilities
+import VisualizationTools # https://gitlab.com/RoyCCWang/visualizationtools
 
 
 include("../examples/helpers/visualization.jl")

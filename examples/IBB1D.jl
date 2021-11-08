@@ -28,7 +28,7 @@ fig_num = 1
 
 ##### regression
 #θ = Spline34KernelType(0.2)
-θ = BrownianBridge10(1.0)
+θ = RKHSRegularization.BrownianBridge10(1.0)
 #θ = BrownianBridge20(1.0)
 #θ = BrownianBridge1ϵ(4.5)
 #θ = BrownianBridge2ϵ(2.5)
@@ -41,13 +41,13 @@ N = 15
 x_range = LinRange(1e-5, 1.0-1e-5, N)
 
 X = collect( [x_range[n]] for n = 1:N )
-coordwrapper = xx->convert2itpindex(xx, X[1], X[end], [length(X)])
+coordwrapper = xx->RKHSRegularization.convert2itpindex(xx, X[1], X[end], [length(X)])
 
 f = xx->sinc(4*xx)*xx^3
 y = f.(x_range)
 
 # check posdef.
-K = constructkernelmatrix(X, θ)
+K = RKHSRegularization.constructkernelmatrix(X, θ)
 println("rank(K) = ", rank(K))
 
 println("isposdef = ", isposdef(K))
@@ -55,11 +55,11 @@ println("isposdef = ", isposdef(K))
 
 
 # fit RKHS.
-η = RKHSProblemType( zeros(Float64,length(X)),
+η = RKHSRegularization.RKHSProblemType( zeros(Float64,length(X)),
                      X,
                      θ,
                      σ²)
-fitRKHS!(η, y)
+                     RKHSRegularization.fitRKHS!(η, y)
 
 
 
@@ -71,7 +71,7 @@ xq = collect( [xq_range[n]] for n = 1:Nq )
 f_xq = f.(xq_range) # generating function.
 
 yq = Vector{Float64}(undef, Nq)
-query!(yq,xq,η)
+RKHSRegularization.query!(yq,xq,η)
 
 # Visualize regression result.
 PyPlot.figure(fig_num)

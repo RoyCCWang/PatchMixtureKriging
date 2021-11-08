@@ -14,7 +14,7 @@ module RKHSRegularization
     # import SCS
     # #import SDPA
     #
-    # import Utilities
+    # import Utilities # https://gitlab.com/RoyCCWang/utilities
     # import SignalTools
     #
     # import Optim

@@ -14,7 +14,7 @@ import StatsFuns
 
 import Printf
 
-import Utilities
+import Utilities # https://gitlab.com/RoyCCWang/utilities
 import Calculus
 import AdaptiveRKHS
 import Statistics
