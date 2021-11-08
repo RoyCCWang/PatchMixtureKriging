@@ -112,14 +112,6 @@ levels = 3 # 2^(levels-1) leaf nodes. Must be larger than 1.
 
 root, X_parts, X_parts_inds = RKHSRegularization.setuppartition(X, levels)
 
-# following should be the same.
-#y_parts = collect( y[X_parts_inds[n]] for n = 1:length(X_parts_inds))
-
-
-
-# # print using AbstractTrees.
-# AbstractTrees.printnode(io::IO, node::RKHSRegularization.BinaryNode) = print(io, node.data)
-# AbstractTrees.print_tree(root)
 
 ### visualize tree.
 centroid = Statistics.mean( Statistics.mean(X_parts[i]) for i = 1:length(X_parts) )
@@ -137,8 +129,6 @@ PyPlot.axis("scaled")
 
 ax[:set_xlim]([limit_a[1],limit_b[1]]) # x1 is horizontal (x).
 ax[:set_ylim]([limit_a[2],limit_b[2]]) # x2 is vertical (y).
-
-#@assert 5==4
 
 #### RKHS.
 
@@ -182,8 +172,7 @@ weight_θ = RKHSRegularization.Spline34KernelType(1/radius)
 #RKHSRegularization.evalkernel(0.9, weight_θ) # cut-off at radius.
 
 
-δ = 1e-5
-#δ = 1e-5
+δ = 1e-5 # allowed border at segmentation boundaries.
 debug_vars = RKHSRegularization.MixtureGPDebugType(1.0)
 RKHSRegularization.querymixtureGP!(Yq, Vq, Xq, η, root, levels, radius, δ, θ, σ², weight_θ, debug_vars)
 
@@ -192,56 +181,18 @@ Xq_nD = reshape(Xq, size(f_X_nD))
 
 
 fig_num = visualizemeshgridpcolorx1horizontal(x_ranges,
-q_X_nD, [], "x", fig_num, "Yq")
+q_X_nD, [], "x", fig_num, "The regularization result")
 
 
 # superimpose with regions.
 fig_num = visualizemeshgridpcolorx1horizontal(x_ranges,
-q_X_nD, [], "x", fig_num, "Yq")
+q_X_nD, [], "x", fig_num, "")
 
 
 fig_num, ax = visualize2Dpartition(X_set, y_set, t_set, fig_num, "levels = $(levels)"; new_fig_flag = false)
 PyPlot.axis("scaled")
+PyPlot.title("The regularization result with segmentation superimposed")
 
 #ax[:set_xlim]([limit_a[1],limit_b[1]]) # x1 is horizontal (x).
 #ax[:set_ylim]([limit_a[2],limit_b[2]]) # x2 is vertical (y).
 
-@assert 1==2
-
-# I am here. figure out why it is still discontinuous. write a custom routine that extracts u, v, w's for debugging.
-# plot a line from a known dark spot to a known brighter spot. Use debug.
-
-
-#xq = [-2.58, 9.13]
-xq =  [-2.038690328209032, 9.387816600304607]
-#xq = X_parts[2][3]
-xq =  [-0.766; -5.782]
-a = collect( RKHSRegularization.queryinner(xq, X_set[m], θ, η.c_set[m]) for m = 1:length(X_set) )
-
-Yq1, Vq1, _ = RKHSRegularization.querymixtureGP(xq, η, root, levels, radius, δ, θ, σ², weight_θ)
-
-q = xx->RKHSRegularization.querymixtureGP(xx, η, root, levels, radius, δ, θ, σ², weight_θ)
-
-p_region_ind = RKHSRegularization.findpartition(xq, root, levels)
-
-function query2(X_nD::Matrix{Vector{T}}, η, root, levels, radius, δ, θ, σ², weight_θ) where T
-    
-    out = Matrix{T}(undef, size(X_nD))
-    for r = 1:size(X_nD,1)
-        for c = 1:size(X_nD,2)
-            #
-            tmp, _ = RKHSRegularization.querymixtureGP(X_nD[r,c], η, root, levels,
-            radius, δ, θ, σ², weight_θ)
-
-            out[r,c] = tmp[1]
-
-        end
-    end
-
-    return out
-end
-
-out = query2(Xq_nD, η, root, levels, radius, δ, θ, σ², weight_θ)
-
-xq = Xq_nD[25,72]
-xq = Xq_nD[183,36] # I think we are 

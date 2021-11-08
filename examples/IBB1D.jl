@@ -7,14 +7,18 @@ import Interpolations
 
 #import SignalTools
 
-include("../src/misc/declarations.jl")
+# include("../src/misc/declarations.jl")
 
-include("../src/RKHS/RKHS.jl")
-include("../src/RKHS/kernel.jl")
-#include("../src/RKHS/interpolators.jl")
+# include("../src/RKHS/RKHS.jl")
+# include("../src/RKHS/kernel.jl")
+# #include("../src/RKHS/interpolators.jl")
 
-include("../src/warp_map/Rieszanalysis.jl")
-include("../src/misc/utilities.jl")
+# include("../src/warp_map/Rieszanalysis.jl")
+# include("../src/misc/utilities.jl")
+
+include("../src/RKHSRegularization.jl")
+import .RKHSRegularization # https://github.com/RoyCCWang/RKHSRegularization
+
 
 PyPlot.close("all")
 
