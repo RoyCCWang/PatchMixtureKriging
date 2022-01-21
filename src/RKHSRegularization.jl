@@ -18,19 +18,15 @@ module RKHSRegularization
     # import SignalTools
     #
     # import Optim
+    # import VisualizationTools
+    # import Colors
+    # import RiemannianOptim # https://gitlab.com/RoyCCWang/riemannianoptim
 
-    #import RiemannianOptim # https://gitlab.com/RoyCCWang/riemannianoptim
     using LinearAlgebra
     import Statistics
-    #import Colors
-    
     using AbstractTrees
 
-    # indirect dependencies.
-    #import VisualizationTools
-
     include("./misc/declarations.jl")
-    #include("./misc/utilities.jl")
     include("./misc/front_end.jl")
 
     include("./RKHS/RKHS.jl")
@@ -38,8 +34,6 @@ module RKHSRegularization
 
     include("./RKHS/patchwork_RKHS.jl")
 
-    #include("./RKHS/ODEkernels.jl")
-    ##include("./RKHS/interpolators.jl")
     include("./RKHS/querying.jl")
 
     include("./patchwork/partition.jl")
@@ -47,23 +41,24 @@ module RKHSRegularization
 
     include("./misc/utilities.jl")
 
-
     include("./patchwork/visualize_2D.jl")
 
+    ### legacy and future clean-up/expansion.
+    #include("./RKHS/ODEkernels.jl")
+    ##include("./RKHS/interpolators.jl")
     #include("./RKHS/derivatives/SqExp_derivatives.jl")
-
     #include("./warp_map/Rieszanalysis.jl")
-
     #include("./optimization/sdp.jl")
+    #include("./misc/utilities.jl")
 
     export  RKHSProblemType,
             fitRKHS!,
             query!,
             #fitnDdensity,
-            fitnDdensityRiemannian,
+            #fitpdfviaSDP,
+            #fitnDdensityRiemannian,
             constructkernelmatrix,
             evalkernel,
-            #fitpdfviaSDP,
             evalquery,
 
             # mixGP.

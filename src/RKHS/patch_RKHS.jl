@@ -136,7 +136,7 @@ end
 #     #
 #
 #     # interior patches.
-#     X_set = Vector{Vector{LinRange{T}}}(undef, size(P))
+#     X_set = Vector{Vector{LinRange{T,Int}}}(undef, size(P))
 #     for j = 1:size(P,2)
 #         for i = 1:size(P,1)
 #             out[i,j] = X[P[i,j]...]

@@ -17,7 +17,7 @@ import Interpolations
 # include("../src/misc/utilities.jl")
 
 #include("../src/RKHSRegularization.jl")
-import RKHSRegularization # https://github.com/RoyCCWang/RKHSRegularization
+import RKHSRegularization # Install command from Julia REPL: using Pkg; Pkg.add("https://github.com/RoyCCWang/RKHSRegularization")
 
 
 PyPlot.close("all")

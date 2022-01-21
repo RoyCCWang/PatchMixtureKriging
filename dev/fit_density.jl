@@ -51,7 +51,7 @@ Random.seed!(25)
 
 
 
-function visualizemeshgridpcolor(   x_ranges::Vector{LinRange{T}},
+function visualizemeshgridpcolor(   x_ranges::Vector{LinRange{T,L}},
                                     Y::Matrix{T},
                                     marker_locations::Vector,
                                     marker_symbol::String,
@@ -59,7 +59,7 @@ function visualizemeshgridpcolor(   x_ranges::Vector{LinRange{T}},
                                     title_string::String;
                                     x1_title_string::String = "Dimension 1",
                                     x2_title_string::String = "Dimension 2",
-                                    cmap = "Greens_r") where T <: Real
+                                    cmap = "Greens_r") where {T <: Real, L}
     #
     @assert length(x_ranges) == 2
     x_coords = collect( collect(x_ranges[d]) for d = 1:2 )

@@ -94,7 +94,7 @@ function visualizesingleregions(X_set, y_set, t_set, fig_num;
     return fig_num
 end
 
-function visualizemeshgridpcolorx1horizontal( x_ranges::Vector{LinRange{T}},
+function visualizemeshgridpcolorx1horizontal( x_ranges::Vector{LinRange{T,L}},
     Y::Matrix{T},
     marker_locations::Vector,
     marker_symbol::String,
@@ -102,7 +102,7 @@ function visualizemeshgridpcolorx1horizontal( x_ranges::Vector{LinRange{T}},
     title_string::String;
     x1_title_string::String = "Dimension 1",
     x2_title_string::String = "Dimension 2",
-    cmap = "Greens_r") where T <: Real
+    cmap = "Greens_r") where {T <: Real,L}
 
     #
     @assert length(x_ranges) == 2
