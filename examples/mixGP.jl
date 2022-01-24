@@ -182,7 +182,7 @@ Xq_nD = reshape(Xq, size(f_X_nD))
 
 
 fig_num = visualizemeshgridpcolorx1horizontal(x_ranges,
-q_X_nD, [], "x", fig_num, "The regularization result")
+q_X_nD, [], "x", fig_num, "The regularization result, predictive mean")
 
 
 # superimpose with regions.
@@ -192,8 +192,16 @@ q_X_nD, [], "x", fig_num, "")
 
 fig_num, ax = visualize2Dpartition(X_set, y_set, t_set, fig_num, "levels = $(levels)"; new_fig_flag = false)
 PyPlot.axis("scaled")
-PyPlot.title("The regularization result with segmentation superimposed")
+PyPlot.title("The regularization result with segmentation superimposed, mean")
 
 #ax[:set_xlim]([limit_a[1],limit_b[1]]) # x1 is horizontal (x).
 #ax[:set_ylim]([limit_a[2],limit_b[2]]) # x2 is vertical (y).
 
+
+# visualize predictive variance.
+v_X_nD = log.(reshape(Vq, size(f_X_nD)))
+Xq_nD = reshape(Xq, size(f_X_nD))
+
+
+fig_num = visualizemeshgridpcolorx1horizontal(x_ranges,
+v_X_nD, [], "x", fig_num, "The regularization result, predictive variance")

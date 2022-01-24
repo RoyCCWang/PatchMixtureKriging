@@ -293,7 +293,7 @@ function querymixtureGP!(Yq::Vector{T},
     return nothing
 end
 
-function queryinner!(kq::Vector{T}, xq, X, θ, c, L) where T
+function queryinner!(kq::Vector{T}, xq, X, θ, c, L; min_v = 1e-12) where T
 
     @assert length(c) == length(X)
 
@@ -309,7 +309,7 @@ function queryinner!(kq::Vector{T}, xq, X, θ, c, L) where T
 
     ## variance.
     v = L\kq
-    vq = evalkernel(xq, xq, θ) - dot(v,v)
+    vq = clamp(evalkernel(xq, xq, θ) - dot(v,v), min_v)
     #vq = -1.23 # TODO placeholder for now.
 
     return μq, vq
