@@ -1,6 +1,7 @@
 
 ### mixture GP types.
 
+# Structure for storing debug parameters from a MixtureGPType object when it is being queried.
 mutable struct MixtureGPDebugType{T}
     
     w_tilde_set::Vector{Vector{T}}
@@ -42,6 +43,7 @@ mutable struct MixtureGPType{T}
     # can probably delte the following.
     σ²_set::Vector{T}
     U_set::Vector{Matrix{T}}
+    L_set::Vector{LowerTriangular{T, Matrix{T}}}
 
     #boundary_labels::Vector{Tuple{Int,Int}}
     hps::Vector{HyperplaneType{T}}
@@ -57,8 +59,10 @@ function MixtureGPType(X_parts::Vector{Vector{Vector{T}}},
     c_set = Vector{Vector{T}}(undef, N)
     σ²_set = Vector{T}(undef, N)
     K_set = Vector{Matrix{T}}(undef, N)
+    L_set = Vector{LowerTriangular{T, Matrix{T}}}(undef, N)
+
     
-    return MixtureGPType(X_parts, c_set, σ²_set, K_set, hps)
+    return MixtureGPType(X_parts, c_set, σ²_set, K_set, L_set, hps)
 end
 
 
@@ -92,6 +96,7 @@ function fitmixtureGP!(η::MixtureGPType{T},
 
         # train GPs.
         U = constructkernelmatrix(X, θ)
+        η.U_set[n] = copy(U) # store.
 
         # add observation model's noise.
         for i = 1:size(U,1)
@@ -100,8 +105,11 @@ function fitmixtureGP!(η::MixtureGPType{T},
 
         c = U\y
 
+        # cholesky.
+        chol_U = cholesky(U)
+
         # store.
-        η.U_set[n] = U
+        η.L_set[n] = chol_U.L
         η.c_set[n] = c
         η.σ²_set[n] = σ²
     end
@@ -162,6 +170,7 @@ function querymixtureGP!(Yq::Vector{T},
     debug_flag = false)::Nothing where {KT, T}
 
     c_set = η.c_set
+    L_set = η.L_set
     X_parts = η.X_parts
     hps = η.hps
 
@@ -221,13 +230,13 @@ function querymixtureGP!(Yq::Vector{T},
             
             w[i] = RKHSRegularization.evalkernel(abs(t_kept[i]), weight_θ)
 
-            u[i], v[i] = queryinner!(kq, xq, X_parts[r], θ, c_set[r])
+            u[i], v[i] = queryinner!(kq, xq, X_parts[r], θ, c_set[r], L_set[r])
         end
 
         # u, v, w for the region that contains xq.
         w[end] = one(T)
 
-        u[end], v[end] = queryinner!(kq, xq, X_parts[p_region_ind], θ, c_set[p_region_ind])
+        u[end], v[end] = queryinner!(kq, xq, X_parts[p_region_ind], θ, c_set[p_region_ind], L_set[p_region_ind])
 
         #debug.
         if debug_flag
@@ -284,7 +293,7 @@ function querymixtureGP!(Yq::Vector{T},
     return nothing
 end
 
-function queryinner!(kq::Vector{T}, xq, X, θ, c) where T
+function queryinner!(kq::Vector{T}, xq, X, θ, c, L) where T
 
     @assert length(c) == length(X)
 
@@ -299,15 +308,15 @@ function queryinner!(kq::Vector{T}, xq, X, θ, c) where T
     μq = dot(kq, c)
 
     ## variance.
-    # v = L\kq
-    # vq = evalkernel(Xq[iq], Xq[iq], η.θ) - dot(v,v)
-    vq = -1.23 # TODO placeholder for now.
+    v = L\kq
+    vq = evalkernel(xq, xq, θ) - dot(v,v)
+    #vq = -1.23 # TODO placeholder for now.
 
     return μq, vq
 end
 
-function queryinner(xq::Vector{T}, X, θ, c) where T
-    return queryinner!(Vector{T}(undef, 0), xq, X, θ, c)
+function queryinner(xq::Vector{T}, X, θ, c, L) where T
+    return queryinner!(Vector{T}(undef, 0), xq, X, θ, c, L)
 end
 
 function fetchhyperplanes(root::BinaryNode{PartitionDataType{T}}) where T

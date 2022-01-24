@@ -11,8 +11,9 @@ using LinearAlgebra
 
 import Colors
 
-#include("../src/RKHSRegularization.jl")
-import RKHSRegularization # https://github.com/RoyCCWang/RKHSRegularization
+include("../src/RKHSRegularization.jl")
+import .RKHSRegularization
+#import RKHSRegularization # https://github.com/RoyCCWang/RKHSRegularization
 
 #PyPlot.matplotlib["rcParams"][:update](["font.size" => 22, "font.family" => "serif"])
 
