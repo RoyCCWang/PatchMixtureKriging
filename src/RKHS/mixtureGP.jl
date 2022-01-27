@@ -3,14 +3,14 @@
 
 # Structure for storing debug parameters from a MixtureGPType object when it is being queried.
 mutable struct MixtureGPDebugType{T}
-    
+
     w_tilde_set::Vector{Vector{T}}
     u_set::Vector{Vector{T}}
     v_set::Vector{Vector{T}}
-    
+
     region_inds_set::Vector{Vector{Int}}
     p_region_ind_set::Vector{Int}
-    
+
     hps_keep_flags_set::Vector{BitVector}
     zs_set::Vector{Vector{Vector{T}}}
     ts_set::Vector{Vector{T}}
@@ -21,7 +21,7 @@ function MixtureGPDebugType(dummy_val::T) where T
     w_tilde_set = Vector{Vector{T}}(undef, 0)
     u_set = Vector{Vector{T}}(undef, 0)
     v_set = Vector{Vector{T}}(undef, 0)
-    
+
     region_inds_set = Vector{Vector{Int}}(undef, 0)
     p_region_ind_set = Vector{Int}(undef, 0)
 
@@ -53,7 +53,7 @@ end
 
 function MixtureGPType(X_parts::Vector{Vector{Vector{T}}},
     hps::Vector{HyperplaneType{T}}) where T
-    
+
     N = length(X_parts)
 
     c_set = Vector{Vector{T}}(undef, N)
@@ -61,7 +61,7 @@ function MixtureGPType(X_parts::Vector{Vector{Vector{T}}},
     K_set = Vector{Matrix{T}}(undef, N)
     L_set = Vector{LowerTriangular{T, Matrix{T}}}(undef, N)
 
-    
+
     return MixtureGPType(X_parts, c_set, σ²_set, K_set, L_set, hps)
 end
 
@@ -121,7 +121,7 @@ function querymixtureGP(xq::Vector{T},
     η::MixtureGPType{T},
     root,
     levels,
-    radius::T, 
+    radius::T,
     δ::T, # tolerance for partition search.
     θ::KT, σ²,
     weight_θ;
@@ -138,7 +138,7 @@ function querymixtureGP(Xq::Vector{Vector{T}},
     η::MixtureGPType{T},
     root,
     levels,
-    radius::T, 
+    radius::T,
     δ::T, # tolerance for partition search.
     θ::KT, σ²,
     weight_θ;
@@ -162,7 +162,7 @@ function querymixtureGP!(Yq::Vector{T},
     η::MixtureGPType{T},
     root,
     levels,
-    radius::T, 
+    radius::T,
     δ::T, # tolerance for partition search.
     θ::KT, σ²,
     weight_θ,
@@ -227,7 +227,7 @@ function querymixtureGP!(Yq::Vector{T},
 
             # i is index for objects returned by findneighbourpartitions()
             # r is the global region index, which is used by objects from η.
-            
+
             w[i] = RKHSRegularization.evalkernel(abs(t_kept[i]), weight_θ)
 
             u[i], v[i] = queryinner!(kq, xq, X_parts[r], θ, c_set[r], L_set[r])
@@ -267,7 +267,7 @@ function querymixtureGP!(Yq::Vector{T},
 
         ## apply mixture.
         Yq[j] = dot(w, u)
-        
+
         #Vq[j] = dot(w,diagm(v)*w)
         Vq[j] = dot(w, v .* w) # faster.
 
@@ -303,13 +303,13 @@ function queryinner!(kq::Vector{T}, xq, X, θ, c, L; min_v = 1e-12) where T
         #kq[i] = evalkernel(norm(xq-X[i]), θ) # figure this out later.
         kq[i] = evalkernel(xq, X[i], θ) # figure this out later.
     end
-    
+
     # mean.
     μq = dot(kq, c)
 
     ## variance.
     v = L\kq
-    vq = clamp(evalkernel(xq, xq, θ) - dot(v,v), min_v)
+    vq = clamp(evalkernel(xq, xq, θ) - dot(v,v), min_v, Inf)
     #vq = -1.23 # TODO placeholder for now.
 
     return μq, vq
@@ -323,13 +323,13 @@ function fetchhyperplanes(root::BinaryNode{PartitionDataType{T}}) where T
 
     hps = Vector{HyperplaneType{T}}(undef, 0)
     for node in AbstractTrees.PreOrderDFS(root)
-        
+
         if isdefined(node.data.hp, :v)
             # non-leaf node.
             push!(hps, node.data.hp)
         end
     end
- 
+
     return hps
 end
 
@@ -343,7 +343,7 @@ function findneighbourpartitions(p::Vector{T},
     hps,
     p_region_ind::Int;
     δ::T = 1e-10) where T
-    
+
     region_inds = Vector{Int}(undef, length(hps))
     j = 0
 
@@ -365,7 +365,7 @@ function findneighbourpartitions(p::Vector{T},
         ts[i] = t
 
         if norm(z-p) < radius
-            
+
             # get two points along ray normal to the plane, on either side of plane.
             z1 = p + (t+δ) .* u
             z2 = p + (t-δ) .* u
@@ -383,10 +383,10 @@ function findneighbourpartitions(p::Vector{T},
 
             # do not keep if both are in p's region.
             # keep if either z1 or z2 is in p's region.
-            #if !(z2_region_ind == p_region_ind && z1_region_ind == p_region_ind) && 
+            #if !(z2_region_ind == p_region_ind && z1_region_ind == p_region_ind) &&
             #    (z2_region_ind == p_region_ind || z1_region_ind == p_region_ind)
             if xor(z2_region_ind == p_region_ind, z1_region_ind == p_region_ind)
-                
+
                 keep_flags[i] = true
 
                 j += 1
@@ -394,7 +394,7 @@ function findneighbourpartitions(p::Vector{T},
                 if z1_region_ind == p_region_ind
                     region_inds[j] = z2_region_ind
                 end
-                
+
             end
         end
     end
@@ -403,5 +403,3 @@ function findneighbourpartitions(p::Vector{T},
 
     return region_inds, ts, zs, keep_flags
 end
-
-
