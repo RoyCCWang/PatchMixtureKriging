@@ -20,8 +20,8 @@ module PatchMixtureKriging
     # import Optim
     # import VisualizationTools
     # import Colors
-    # import RiemannianOptim # https://gitlab.com/RoyCCWang/riemannianoptim
-
+    # import RWRiemannianOptim
+    
     using LinearAlgebra
     import Statistics
     using AbstractTrees
