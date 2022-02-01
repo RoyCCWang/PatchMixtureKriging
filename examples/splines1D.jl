@@ -8,7 +8,7 @@ using LinearAlgebra
 #import Interpolations
 #using Revise
 
-import RKHSRegularization # https://github.com/RoyCCWang/RKHSRegularization
+import PatchMixtureKriging # https://github.com/RoyCCWang/PatchMixtureKriging
 
 PyPlot.matplotlib["rcParams"][:update](["font.size" => 22, "font.family" => "serif"])
 
@@ -19,7 +19,7 @@ Random.seed!(25)
 fig_num = 1
 
 ##### regression
-θ = RKHSRegularization.Spline34KernelType(0.04)
+θ = PatchMixtureKriging.Spline34KernelType(0.04)
 
 # user inputs.
 σ² = 1e-3
@@ -40,7 +40,7 @@ f = xx->sinc(4*xx)*xx^3
 y = f.(x_range)
 
 # check posdef.
-K = RKHSRegularization.constructkernelmatrix(X, θ)
+K = PatchMixtureKriging.constructkernelmatrix(X, θ)
 println("rank(K) = ", rank(K))
 
 println("isposdef = ", isposdef(K))
@@ -48,11 +48,11 @@ println("isposdef = ", isposdef(K))
 
 
 # fit RKHS.
-η = RKHSRegularization.RKHSProblemType( zeros(Float64,length(X)),
+η = PatchMixtureKriging.RKHSProblemType( zeros(Float64,length(X)),
                      X,
                      θ,
                      σ²)
-RKHSRegularization.fitRKHS!(η, y)
+PatchMixtureKriging.fitRKHS!(η, y)
 
 
 
@@ -62,7 +62,7 @@ xq = collect( [xq_range[n]] for n = 1:Nq )
 f_xq = f.(xq_range) # generating function.
 
 yq = Vector{Float64}(undef, Nq)
-RKHSRegularization.query!(yq,xq,η)
+PatchMixtureKriging.query!(yq,xq,η)
 
 # Visualize regression result.
 PyPlot.figure(fig_num)

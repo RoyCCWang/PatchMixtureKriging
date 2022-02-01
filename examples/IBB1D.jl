@@ -16,8 +16,8 @@ import Interpolations
 # include("../src/warp_map/Rieszanalysis.jl")
 # include("../src/misc/utilities.jl")
 
-#include("../src/RKHSRegularization.jl")
-import RKHSRegularization # Install command from Julia REPL: using Pkg; Pkg.add("https://github.com/RoyCCWang/RKHSRegularization")
+#include("../src/PatchMixtureKriging.jl")
+import PatchMixtureKriging # Install command from Julia REPL: using Pkg; Pkg.add("https://github.com/RoyCCWang/PatchMixtureKriging")
 
 
 PyPlot.close("all")
@@ -28,7 +28,7 @@ fig_num = 1
 
 ##### regression
 #θ = Spline34KernelType(0.2)
-θ = RKHSRegularization.BrownianBridge10(1.0)
+θ = PatchMixtureKriging.BrownianBridge10(1.0)
 #θ = BrownianBridge20(1.0)
 #θ = BrownianBridge1ϵ(4.5)
 #θ = BrownianBridge2ϵ(2.5)
@@ -41,13 +41,13 @@ N = 15
 x_range = LinRange(1e-5, 1.0-1e-5, N)
 
 X = collect( [x_range[n]] for n = 1:N )
-coordwrapper = xx->RKHSRegularization.convert2itpindex(xx, X[1], X[end], [length(X)])
+coordwrapper = xx->PatchMixtureKriging.convert2itpindex(xx, X[1], X[end], [length(X)])
 
 f = xx->sinc(4*xx)*xx^3
 y = f.(x_range)
 
 # check posdef.
-K = RKHSRegularization.constructkernelmatrix(X, θ)
+K = PatchMixtureKriging.constructkernelmatrix(X, θ)
 println("rank(K) = ", rank(K))
 
 println("isposdef = ", isposdef(K))
@@ -55,11 +55,11 @@ println("isposdef = ", isposdef(K))
 
 
 # fit RKHS.
-η = RKHSRegularization.RKHSProblemType( zeros(Float64,length(X)),
+η = PatchMixtureKriging.RKHSProblemType( zeros(Float64,length(X)),
                      X,
                      θ,
                      σ²)
-                     RKHSRegularization.fitRKHS!(η, y)
+                     PatchMixtureKriging.fitRKHS!(η, y)
 
 
 
@@ -71,7 +71,7 @@ xq = collect( [xq_range[n]] for n = 1:Nq )
 f_xq = f.(xq_range) # generating function.
 
 yq = Vector{Float64}(undef, Nq)
-RKHSRegularization.query!(yq,xq,η)
+PatchMixtureKriging.query!(yq,xq,η)
 
 # Visualize regression result.
 PyPlot.figure(fig_num)

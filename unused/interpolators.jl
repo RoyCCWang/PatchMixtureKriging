@@ -88,7 +88,43 @@
 #     return θ_set
 # end
 
+# options for warp map samples.
+# this is the case when the target density is unknown, but realizations are available.
+function getwarpmapsamplecustom( y::Array{T,D},
+                            ω_set,
+                            pass_band_factor) where {T,D}
+    #
+    N_bands = length(ω_set)
 
+    Y = y
+
+    #### Split-band analysis.
+    ϕY, ψY = SignalTools.runsplitbandanalysis(Y, ω_set, SignalTools.getGaussianfilters)
+    ηY = SignalTools.runbandpassanalysis(Y, ω_set, pass_band_factor, SignalTools.getGaussianfilters)
+
+    # #### Riesz transform on the different filtered signals.
+    # H, ordering = gethigherorderRTfilters(Y,order)
+    #
+    # 𝓡ϕY = collect( RieszAnalysisLimited(ϕY[s],H) for s = 1:N_bands)
+    # 𝓡ψY = collect( RieszAnalysisLimited(ψY[s],H) for s = 1:N_bands)
+    # 𝓡ηY = collect( RieszAnalysisLimited(ηY[s],H) for s = 1:N_bands)
+
+    ϕ_set = ηY
+
+    ϕ = reduce(+,ϕ_set)./N_bands
+
+    return ϕY, ψY, ηY
+end
+
+function getwarpmaplinear(ϕ::Array{T,D}) where {T,D}
+
+    itp_ϕ = Interpolations.interpolate(ϕ,
+                Interpolations.BSpline(Interpolations.Linear()))
+
+    etp_ϕ = Interpolations.extrapolate(itp_ϕ, Interpolations.Line())
+
+    return etp_ϕ
+end
 
 function getwarpmap(ϕ::Array{T,D}) where {T,D}
 

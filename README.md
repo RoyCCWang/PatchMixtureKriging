@@ -1,11 +1,11 @@
-# RKHSRegularization
+# PatchMixtureKriging
 
-[![Build Status](https://github.com/RCCWang/RKHSRegularization.jl/workflows/CI/badge.svg)](https://github.com/RCCWang/RKHSRegularization.jl/actions)
-[![Coverage](https://codecov.io/gh/RCCWang/RKHSRegularization.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/RCCWang/RKHSRegularization.jl)
+[![Build Status](https://github.com/RCCWang/PatchMixtureKriging.jl/workflows/CI/badge.svg)](https://github.com/RCCWang/PatchMixtureKriging.jl/actions)
+[![Coverage](https://codecov.io/gh/RCCWang/PatchMixtureKriging.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/RCCWang/PatchMixtureKriging.jl)
 
 This package is under construction.
 
-To install, start Julia REPL, press `]`, and run the command `https://github.com/RoyCCWang/RKHSRegularization`
+To install, start Julia REPL, press `]`, and run the command `https://github.com/RoyCCWang/PatchMixtureKriging`
 
 Example folder:
 `IBB1D.jl` is a 1D regression example using the iterated Brownian bridge kernel.

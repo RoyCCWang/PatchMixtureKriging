@@ -8,8 +8,8 @@ using LinearAlgebra
 #import Interpolations
 #using Revise
 
-include("../src/RKHSRegularization.jl")
-import .RKHSRegularization # https://github.com/RoyCCWang/RKHSRegularization
+include("../src/PatchMixtureKriging.jl")
+import .PatchMixtureKriging # https://github.com/RoyCCWang/PatchMixtureKriging
 
 PyPlot.matplotlib["rcParams"][:update](["font.size" => 22, "font.family" => "serif"])
 import Random
@@ -20,8 +20,8 @@ using LinearAlgebra
 #import Interpolations
 #using Revise
 
-include("../src/RKHSRegularization.jl")
-import .RKHSRegularization # https://github.com/RoyCCWang/RKHSRegularization
+include("../src/PatchMixtureKriging.jl")
+import .PatchMixtureKriging # https://github.com/RoyCCWang/PatchMixtureKriging
 
 PyPlot.matplotlib["rcParams"][:update](["font.size" => 22, "font.family" => "serif"])
 
@@ -45,7 +45,7 @@ X = rand(dist, N)
 
 # ceneterd data matrix: zero mean and transposed.
 Z = collect( X[:,n] - μ for n = 1:size(X,2) )
-Z_mat = RKHSRegularization.array2matrix(Z)
+Z_mat = PatchMixtureKriging.array2matrix(Z)
 Z_mat = Z_mat'
 
 
@@ -54,7 +54,7 @@ U, s, V = svd(Z_mat)
 u = V[:,1]
 
 X_set = collect( X[:,n] for n = 1:size(X,2) )
-flags, functional_evals, c = RKHSRegularization.splitpoints(u, X_set)
+flags, functional_evals, c = PatchMixtureKriging.splitpoints(u, X_set)
 X1 = X[:, flags]
 X2 = X[:, .!flags]
 

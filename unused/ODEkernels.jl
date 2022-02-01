@@ -33,13 +33,13 @@ See Mathematica script for derivation.
 
 Test:
 
-import RKHSRegularization
+import PatchMixtureKriging
 using LinearAlgebra
-θ = RKHSRegularization.GaussianKernelODEType(1.23, 0.321)
+θ = PatchMixtureKriging.GaussianKernelODEType(1.23, 0.321)
 s = randn()
 z = randn()
-p1 = RKHSRegularization.evalDkernel(s,z,θ)
-p2 = RKHSRegularization.evalkernel𝐷(z,s,θ)
+p1 = PatchMixtureKriging.evalDkernel(s,z,θ)
+p2 = PatchMixtureKriging.evalkernel𝐷(z,s,θ)
 println("discrepancy = ", norm(p1-p2))
 
 """

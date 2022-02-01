@@ -13,8 +13,8 @@ using LinearAlgebra
 
 import Colors
 
-#include("../src/RKHSRegularization.jl")
-import RKHSRegularization # https://github.com/RoyCCWang/RKHSRegularization
+#include("../src/PatchMixtureKriging.jl")
+import PatchMixtureKriging # https://github.com/RoyCCWang/PatchMixtureKriging
 
 #PyPlot.matplotlib["rcParams"][:update](["font.size" => 22, "font.family" => "serif"])
 
@@ -38,16 +38,16 @@ N = 500
 X = collect( randn(D) for n = 1:N )
 levels = 2 # 2^(levels-1) leaf nodes. Must be larger than 1.
 
-root, X_parts, _ = RKHSRegularization.setuppartition(X, levels)
+root, X_parts, _ = PatchMixtureKriging.setuppartition(X, levels)
 
 # # print using AbstractTrees.
-# AbstractTrees.printnode(io::IO, node::RKHSRegularization.BinaryNode) = print(io, node.data)
+# AbstractTrees.printnode(io::IO, node::PatchMixtureKriging.BinaryNode) = print(io, node.data)
 # AbstractTrees.print_tree(root)
 
 ### visualize tree.
 # traverse all leaf nodes.
 # X_parts = Vector{Vector{Vector{Float64}}}(undef, 0)
-# RKHSRegularization.buildXpart!(X_parts, root)
+# PatchMixtureKriging.buildXpart!(X_parts, root)
 
 
 centroid = Statistics.mean( Statistics.mean(X_parts[i]) for i = 1:length(X_parts) )
@@ -58,7 +58,7 @@ t_set = Vector{Vector{Float64}}(undef, 0)
 min_t = -5.0
 max_t = 5.0
 max_N_t = 5000
-RKHSRegularization.getpartitionlines!(y_set, t_set, root, levels, min_t, max_t, max_N_t, centroid, max_dist)
+PatchMixtureKriging.getpartitionlines!(y_set, t_set, root, levels, min_t, max_t, max_N_t, centroid, max_dist)
 
 fig_num, _ = visualize2Dpartition(X_parts, y_set, t_set, fig_num, "levels = $(levels)")
 
@@ -67,10 +67,10 @@ fig_num, _ = visualize2Dpartition(X_parts, y_set, t_set, fig_num, "levels = $(le
 
 levels = 3 # 2^(levels-1) leaf nodes. Must be larger than 1.
 
-root, X_parts, _ = RKHSRegularization.setuppartition(X, levels)
+root, X_parts, _ = PatchMixtureKriging.setuppartition(X, levels)
 
 # # print using AbstractTrees.
-# AbstractTrees.printnode(io::IO, node::RKHSRegularization.BinaryNode) = print(io, node.data)
+# AbstractTrees.printnode(io::IO, node::PatchMixtureKriging.BinaryNode) = print(io, node.data)
 # AbstractTrees.print_tree(root)
 
 ### visualize tree.
@@ -82,7 +82,7 @@ t_set = Vector{Vector{Float64}}(undef, 0)
 min_t = -5.0
 max_t = 5.0
 max_N_t = 5000
-RKHSRegularization.getpartitionlines!(y_set, t_set, root, levels, min_t, max_t, max_N_t, centroid, max_dist)
+PatchMixtureKriging.getpartitionlines!(y_set, t_set, root, levels, min_t, max_t, max_N_t, centroid, max_dist)
 
 fig_num, _ = visualize2Dpartition(X_parts, y_set, t_set, fig_num, "levels = $(levels)")
 
@@ -90,10 +90,10 @@ fig_num, _ = visualize2Dpartition(X_parts, y_set, t_set, fig_num, "levels = $(le
 
 levels = 4 # 2^(levels-1) leaf nodes. Must be larger than 1.
 
-root, X_parts, _ = RKHSRegularization.setuppartition(X, levels)
+root, X_parts, _ = PatchMixtureKriging.setuppartition(X, levels)
 
 # # print using AbstractTrees.
-# AbstractTrees.printnode(io::IO, node::RKHSRegularization.BinaryNode) = print(io, node.data)
+# AbstractTrees.printnode(io::IO, node::PatchMixtureKriging.BinaryNode) = print(io, node.data)
 # AbstractTrees.print_tree(root)
 
 ### visualize tree.
@@ -105,17 +105,17 @@ t_set = Vector{Vector{Float64}}(undef, 0)
 min_t = -5.0
 max_t = 5.0
 max_N_t = 5000
-RKHSRegularization.getpartitionlines!(y_set, t_set, root, levels, min_t, max_t, max_N_t, centroid, max_dist)
+PatchMixtureKriging.getpartitionlines!(y_set, t_set, root, levels, min_t, max_t, max_N_t, centroid, max_dist)
 
 fig_num, ax4 = visualize2Dpartition(X_parts, y_set, t_set, fig_num, "levels = $(levels)")
 
 
 levels = 5 # 2^(levels-1) leaf nodes. Must be larger than 1.
 
-root, X_parts, _ = RKHSRegularization.setuppartition(X, levels)
+root, X_parts, _ = PatchMixtureKriging.setuppartition(X, levels)
 
 # # print using AbstractTrees.
-# AbstractTrees.printnode(io::IO, node::RKHSRegularization.BinaryNode) = print(io, node.data)
+# AbstractTrees.printnode(io::IO, node::PatchMixtureKriging.BinaryNode) = print(io, node.data)
 # AbstractTrees.print_tree(root)
 
 ### visualize tree.
@@ -127,7 +127,7 @@ t_set = Vector{Vector{Float64}}(undef, 0)
 min_t = -5.0
 max_t = 5.0
 max_N_t = 5000
-RKHSRegularization.getpartitionlines!(y_set, t_set, root, levels, min_t, max_t, max_N_t, centroid, max_dist)
+PatchMixtureKriging.getpartitionlines!(y_set, t_set, root, levels, min_t, max_t, max_N_t, centroid, max_dist)
 
 fig_num, ax = visualize2Dpartition(X_parts, y_set, t_set, fig_num, "levels = $(levels)")
 
@@ -138,7 +138,7 @@ fig_num, ax = visualize2Dpartition(X_parts, y_set, t_set, fig_num, "levels = $(l
 x = [0.42; 2.05] # leaf node 11
 x = [3.99; 3.35] # leaf node 16
 x = [0.1; 0.16] # leaf node 9
-x_region_ind = RKHSRegularization.findpartition(x, root, levels)
+x_region_ind = PatchMixtureKriging.findpartition(x, root, levels)
 
 
 #
@@ -150,10 +150,10 @@ x_region_ind = RKHSRegularization.findpartition(x, root, levels)
 
 levels = 4 # 2^(levels-1) leaf nodes. Must be larger than 1.
 
-root, X_parts, _ = RKHSRegularization.setuppartition(X, levels)
+root, X_parts, _ = PatchMixtureKriging.setuppartition(X, levels)
 
 # # print using AbstractTrees.
-# AbstractTrees.printnode(io::IO, node::RKHSRegularization.BinaryNode) = print(io, node.data)
+# AbstractTrees.printnode(io::IO, node::PatchMixtureKriging.BinaryNode) = print(io, node.data)
 # AbstractTrees.print_tree(root)
 
 ### visualize tree.
@@ -165,7 +165,7 @@ t_set = Vector{Vector{Float64}}(undef, 0)
 min_t = -5.0
 max_t = 5.0
 max_N_t = 5000
-RKHSRegularization.getpartitionlines!(y_set, t_set, root, levels, min_t, max_t, max_N_t, centroid, max_dist)
+PatchMixtureKriging.getpartitionlines!(y_set, t_set, root, levels, min_t, max_t, max_N_t, centroid, max_dist)
 
 fig_num, ax = visualize2Dpartition(X_parts, y_set, t_set, fig_num, "levels = $(levels)")
 
@@ -173,7 +173,7 @@ fig_num, ax = visualize2Dpartition(X_parts, y_set, t_set, fig_num, "levels = $(l
 ### work on a training set that is different than the partition.
 ε = 0.3
 X_set, X_set_inds, region_list_set,
-problematic_inds = RKHSRegularization.organizetrainingsets(root, levels, X, ε)
+problematic_inds = PatchMixtureKriging.organizetrainingsets(root, levels, X, ε)
 
 fig_num = visualizesingleregions(X_set, y_set, t_set, fig_num)
 
@@ -189,17 +189,17 @@ println()
 p = x
 
 # find the region for p.
-p_region_ind = RKHSRegularization.findpartition(p, root, levels)
+p_region_ind = PatchMixtureKriging.findpartition(p, root, levels)
 println("p_region_ind = ", p_region_ind)
 println()
 
 # get all hyperplanes.
-hps = RKHSRegularization.fetchhyperplanes(root)
+hps = PatchMixtureKriging.fetchhyperplanes(root)
 @assert length(hps) == length(X_parts) - 1 # sanity check.
 
 radius = ε #0.3
 δ = 1e-5
-region_inds, ts, zs, hps_keep_flags = RKHSRegularization.findneighbourpartitions(p, radius, root, levels, hps, p_region_ind; δ = δ)
+region_inds, ts, zs, hps_keep_flags = PatchMixtureKriging.findneighbourpartitions(p, radius, root, levels, hps, p_region_ind; δ = δ)
 
 # debug.
 hps_kept = hps[hps_keep_flags]

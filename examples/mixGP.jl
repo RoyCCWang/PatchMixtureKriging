@@ -3,7 +3,7 @@ import Random
 import PyPlot
 import Statistics
 
-import AbstractTrees
+#import AbstractTrees
 
 using LinearAlgebra
 #import Interpolations
@@ -11,14 +11,13 @@ using LinearAlgebra
 
 import Colors
 
-include("../src/RKHSRegularization.jl")
-import .RKHSRegularization
-#import RKHSRegularization # https://github.com/RoyCCWang/RKHSRegularization
+#include("../src/PatchMixtureKriging.jl")
+import PatchMixtureKriging
 
 #PyPlot.matplotlib["rcParams"][:update](["font.size" => 22, "font.family" => "serif"])
 
-import Utilities # https://gitlab.com/RoyCCWang/utilities
-import VisualizationTools # https://gitlab.com/RoyCCWang/visualizationtools
+import RWUtilities
+#import VisualizationTools
 
 
 include("../examples/helpers/visualization.jl")
@@ -33,8 +32,8 @@ Random.seed!(25)
 
 fig_num = 1
 
-#θ = RKHSRegularization.Spline34KernelType(0.1) # larger value is narrower bandwidth.
-θ = RKHSRegularization.Spline34KernelType(1/15)
+#θ = PatchMixtureKriging.Spline34KernelType(0.1) # larger value is narrower bandwidth.
+θ = PatchMixtureKriging.Spline34KernelType(1/15)
 D = 2
 σ² = 1e-5
 N = 850
@@ -57,10 +56,10 @@ limit_a = [-5.0; -10.0] # min x1, x2.
 limit_b = [5.0; 10.0] # max x1, x2.
 x_ranges = collect( LinRange(limit_a[d], limit_b[d], N_array[d]) for d = 1:D )
 
-#X_nD = Utilities.ranges2collection(x_ranges, Val(D)) # x1 is vertical.
+#X_nD = RWUtilities.ranges2collection(x_ranges, Val(D)) # x1 is vertical.
 
 # force x1 to be horizontal instead of vertical.
-X_nD = Utilities.ranges2collection(reverse(x_ranges), Val(D)) # x1 is horizontal.
+X_nD = RWUtilities.ranges2collection(reverse(x_ranges), Val(D)) # x1 is horizontal.
 for i = 1:length(X_nD)
     X_nD[i] = reverse(X_nD[i])
 end
@@ -101,8 +100,8 @@ f_X_nD, [], "x", fig_num, "Oracle")
 
 #X = collect( randn(D) for n = 1:N )
 
-X = collect( [Utilities.convertcompactdomain(rand(), 0.0, 1.0, limit_a[1], limit_b[1]);
-Utilities.convertcompactdomain(rand(), 0.0, 1.0, limit_a[2], limit_b[2])] for n = 1:N )
+X = collect( [RWUtilities.convertcompactdomain(rand(), 0.0, 1.0, limit_a[1], limit_b[1]);
+RWUtilities.convertcompactdomain(rand(), 0.0, 1.0, limit_a[2], limit_b[2])] for n = 1:N )
 y = f.(X)
 
 X1 = collect( X[n][1] for n = 1:length(X) )
@@ -111,7 +110,7 @@ X2 = collect( X[n][2] for n = 1:length(X) )
 
 levels = 3 # 2^(levels-1) leaf nodes. Must be larger than 1.
 
-root, X_parts, X_parts_inds = RKHSRegularization.setuppartition(X, levels)
+root, X_parts, X_parts_inds = PatchMixtureKriging.setuppartition(X, levels)
 
 
 ### visualize tree.
@@ -123,7 +122,7 @@ t_set = Vector{Vector{Float64}}(undef, 0)
 min_t = -15.0
 max_t = 15.0
 max_N_t = 5000*3
-RKHSRegularization.getpartitionlines!(y_set, t_set, root, levels, min_t, max_t, max_N_t, centroid, max_dist)
+PatchMixtureKriging.getpartitionlines!(y_set, t_set, root, levels, min_t, max_t, max_N_t, centroid, max_dist)
 
 fig_num, ax = visualize2Dpartition(X_parts, y_set, t_set, fig_num, "levels = $(levels)")
 PyPlot.axis("scaled")
@@ -136,7 +135,7 @@ ax[:set_ylim]([limit_a[2],limit_b[2]]) # x2 is vertical (y).
 # get training set.
 ε = 1.5
 X_set, X_set_inds, region_list_set,
-problematic_inds = RKHSRegularization.organizetrainingsets(root, levels, X, ε)
+problematic_inds = PatchMixtureKriging.organizetrainingsets(root, levels, X, ε)
 
 fig_num = visualizesingleregions(X_set, y_set, t_set, fig_num)
 
@@ -147,13 +146,13 @@ println("N: X_set:   ", N2)
 println()
 
 # set up RKHS.
-hps = RKHSRegularization.fetchhyperplanes(root)
-η = RKHSRegularization.MixtureGPType(X_set, hps)
+hps = PatchMixtureKriging.fetchhyperplanes(root)
+η = PatchMixtureKriging.MixtureGPType(X_set, hps)
 
 # fit RKHS.
 println("Begin query:")
 Y_set = collect( y[X_set_inds[n]] for n = 1:length(X_set_inds))
-@time RKHSRegularization.fitmixtureGP!(η, Y_set, θ, σ²)
+@time PatchMixtureKriging.fitmixtureGP!(η, Y_set, θ, σ²)
 println()
 
 # query.
@@ -169,13 +168,13 @@ Vq = Vector{Float64}(undef, 0)
 
 # for RBF profile.
 radius = 0.3
-weight_θ = RKHSRegularization.Spline34KernelType(1/radius)
-#RKHSRegularization.evalkernel(0.9, weight_θ) # cut-off at radius.
+weight_θ = PatchMixtureKriging.Spline34KernelType(1/radius)
+#PatchMixtureKriging.evalkernel(0.9, weight_θ) # cut-off at radius.
 
 
 δ = 1e-5 # allowed border at segmentation boundaries.
-debug_vars = RKHSRegularization.MixtureGPDebugType(1.0)
-RKHSRegularization.querymixtureGP!(Yq, Vq, Xq, η, root, levels, radius, δ, θ, σ², weight_θ, debug_vars)
+debug_vars = PatchMixtureKriging.MixtureGPDebugType(1.0)
+PatchMixtureKriging.querymixtureGP!(Yq, Vq, Xq, η, root, levels, radius, δ, θ, σ², weight_θ, debug_vars)
 
 q_X_nD = reshape(Yq, size(f_X_nD))
 Xq_nD = reshape(Xq, size(f_X_nD))

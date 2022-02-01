@@ -100,7 +100,7 @@ function setupboundaryquantities(X_parts::Vector{Vector{Vector{T}}}) where T
 end
 # ####### patchworkGP: kernel matrix contruction.
 # boundary_labels, bb_positive_list, bb_negative_list,
-# Xb_positive_list, Xb_negative_list = RKHSRegularization.setupboundaryquantities(X_parts)
+# Xb_positive_list, Xb_negative_list = PatchMixtureKriging.setupboundaryquantities(X_parts)
 
 # pause development since the GP inducing-point styled approx. inference could be very slow.
 # instead, work on the mixture of GP idea.

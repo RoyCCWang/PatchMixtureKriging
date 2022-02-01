@@ -1,4 +1,4 @@
-module RKHSRegularization
+module PatchMixtureKriging
 
     # using FFTW
     #
@@ -14,7 +14,7 @@ module RKHSRegularization
     # import SCS
     # #import SDPA
     #
-    # import Utilities # https://gitlab.com/RoyCCWang/utilities
+    # import RWUtilities
     # import SignalTools
     #
     # import Optim

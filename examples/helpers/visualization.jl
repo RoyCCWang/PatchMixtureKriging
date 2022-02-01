@@ -219,8 +219,8 @@ function findneighbourpartitions(p::Vector{T},
             z2 = p + (t-δ) .* u
 
             # get z1's, z2's region.
-            z1_region_ind = RKHSRegularization.findpartition(z1, root, levels)
-            z2_region_ind = RKHSRegularization.findpartition(z2, root, levels)
+            z1_region_ind = PatchMixtureKriging.findpartition(z1, root, levels)
+            z2_region_ind = PatchMixtureKriging.findpartition(z2, root, levels)
 
             # println("i = ", i)
             # println("z1 = ", z1)

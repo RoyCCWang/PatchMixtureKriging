@@ -43,7 +43,7 @@ dir_xq = xq_fin-xq_st
 Xq = collect( xq_st + t_xq[i] .* dir_xq for i = 1:length(t_xq) )
 
 # individual models..
-q_all = xx->collect( RKHSRegularization.queryinner(xx, X_set[m], θ, η.c_set[m]) for m = 1:length(X_set) )
+q_all = xx->collect( PatchMixtureKriging.queryinner(xx, X_set[m], θ, η.c_set[m]) for m = 1:length(X_set) )
 q_all_evals_tuple = q_all.(Xq)
 
 s_select_a = 3
@@ -65,7 +65,7 @@ PyPlot.legend()
  # I am here. figure out why the weighted query has a dip.
  
 # the weighted models.
-q = xx->RKHSRegularization.querymixtureGP(xx, η, root, levels, radius, δ, θ, σ², weight_θ;
+q = xx->PatchMixtureKriging.querymixtureGP(xx, η, root, levels, radius, δ, θ, σ², weight_θ;
 debug_flag = true)
 
 q_Xq_tuple = q.(Xq)
@@ -154,17 +154,17 @@ println("Global scope for debug")
 p = xq
 
 # find the region for p.
-p_region_ind = RKHSRegularization.findpartition(p, root, levels)
+p_region_ind = PatchMixtureKriging.findpartition(p, root, levels)
 println("p_region_ind = ", p_region_ind)
 println()
 
 # get all hyperplanes.
-hps = RKHSRegularization.fetchhyperplanes(root)
+hps = PatchMixtureKriging.fetchhyperplanes(root)
 @assert length(hps) == length(X_parts) - 1 # sanity check.
 
 # radius = 0.2
 # δ = 1e-5
-#region_inds, ts, zs, hps_keep_flags = RKHSRegularization.findneighbourpartitions(p, radius, root, levels, hps, p_region_ind; δ = δ)
+#region_inds, ts, zs, hps_keep_flags = PatchMixtureKriging.findneighbourpartitions(p, radius, root, levels, hps, p_region_ind; δ = δ)
 region_inds, ts, zs, hps_keep_flags = findneighbourpartitions(p, radius, root, levels, hps, p_region_ind; δ = δ)
 
 # debug.

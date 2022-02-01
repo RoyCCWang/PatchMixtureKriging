@@ -1,6 +1,6 @@
-using RKHSRegularization
+using PatchMixtureKriging
 using Test
 
-@testset "RKHSRegularization.jl" begin
+@testset "PatchMixtureKriging.jl" begin
     # Write your tests here.
 end

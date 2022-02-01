@@ -205,7 +205,7 @@ function querymixtureGP!(Yq::Vector{T},
         xq = Xq[j]
 
         # find the region for p.
-        p_region_ind = RKHSRegularization.findpartition(xq, root, levels)
+        p_region_ind = PatchMixtureKriging.findpartition(xq, root, levels)
 
         # get active partition list, then use it to get u, v, w.
         region_inds, ts, zs, hps_keep_flags = findneighbourpartitions(xq, radius, root,
@@ -228,7 +228,7 @@ function querymixtureGP!(Yq::Vector{T},
             # i is index for objects returned by findneighbourpartitions()
             # r is the global region index, which is used by objects from η.
 
-            w[i] = RKHSRegularization.evalkernel(abs(t_kept[i]), weight_θ)
+            w[i] = PatchMixtureKriging.evalkernel(abs(t_kept[i]), weight_θ)
 
             u[i], v[i] = queryinner!(kq, xq, X_parts[r], θ, c_set[r], L_set[r])
         end
@@ -310,7 +310,7 @@ function queryinner!(kq::Vector{T}, xq, X, θ, c, L; min_v = 1e-12) where T
     ## variance.
     v = L\kq
     vq = clamp(evalkernel(xq, xq, θ) - dot(v,v), min_v, Inf)
-    #vq = -1.23 # TODO placeholder for now.
+    #vq = -1.23 # debug: placeholder.
 
     return μq, vq
 end
@@ -371,8 +371,8 @@ function findneighbourpartitions(p::Vector{T},
             z2 = p + (t-δ) .* u
 
             # get z1's, z2's region.
-            z1_region_ind = RKHSRegularization.findpartition(z1, root, levels)
-            z2_region_ind = RKHSRegularization.findpartition(z2, root, levels)
+            z1_region_ind = PatchMixtureKriging.findpartition(z1, root, levels)
+            z2_region_ind = PatchMixtureKriging.findpartition(z2, root, levels)
 
             # println("i = ", i)
             # println("z1 = ", z1)
