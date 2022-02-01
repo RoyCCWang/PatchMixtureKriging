@@ -11,8 +11,8 @@ using LinearAlgebra
 
 import Colors
 
-include("../src/PatchMixtureKriging.jl")
-import .PatchMixtureKriging
+#include("../src/PatchMixtureKriging.jl")
+import PatchMixtureKriging
 
 #PyPlot.matplotlib["rcParams"][:update](["font.size" => 22, "font.family" => "serif"])
 
