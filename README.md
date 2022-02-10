@@ -5,7 +5,7 @@
 
 This package is under construction.
 
-To install, start Julia REPL, press `]`, and run the command `https://github.com/RoyCCWang/PatchMixtureKriging`
+To install, start Julia REPL, press `]`, and run the command `add PatchMixtureKriging`. You might need a few more packages to run the scripts in the example folder; see the first few lines to see which packages are required for each file.
 
 Example folder:
 `IBB1D.jl` is a 1D regression example using the iterated Brownian bridge kernel.
