@@ -5,20 +5,8 @@ import PyPlot
 using LinearAlgebra
 import Interpolations
 
-#import SignalTools
-
-# include("../src/misc/declarations.jl")
-
-# include("../src/RKHS/RKHS.jl")
-# include("../src/RKHS/kernel.jl")
-# #include("../src/RKHS/interpolators.jl")
-
-# include("../src/warp_map/Rieszanalysis.jl")
-# include("../src/misc/utilities.jl")
-
 #include("../src/PatchMixtureKriging.jl")
-import PatchMixtureKriging # Install command from Julia REPL: using Pkg; Pkg.add("https://github.com/RoyCCWang/PatchMixtureKriging")
-
+import PatchMixtureKriging
 
 PyPlot.close("all")
 

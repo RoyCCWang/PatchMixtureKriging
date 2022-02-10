@@ -5,10 +5,8 @@ import Random
 import PyPlot
 
 using LinearAlgebra
-#import Interpolations
-#using Revise
 
-import PatchMixtureKriging # https://github.com/RoyCCWang/PatchMixtureKriging
+import PatchMixtureKriging
 
 PyPlot.matplotlib["rcParams"][:update](["font.size" => 22, "font.family" => "serif"])
 

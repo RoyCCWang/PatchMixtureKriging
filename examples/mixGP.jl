@@ -6,8 +6,6 @@ import Statistics
 import AbstractTrees
 
 using LinearAlgebra
-#import Interpolations
-#using Revise
 
 import Colors
 
@@ -15,9 +13,6 @@ import Colors
 import PatchMixtureKriging
 
 #PyPlot.matplotlib["rcParams"][:update](["font.size" => 22, "font.family" => "serif"])
-
-#import RWUtilities
-#import VisualizationTools
 
 
 include("../examples/helpers/visualization.jl")
