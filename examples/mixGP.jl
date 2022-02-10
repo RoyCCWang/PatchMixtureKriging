@@ -16,11 +16,12 @@ import PatchMixtureKriging
 
 #PyPlot.matplotlib["rcParams"][:update](["font.size" => 22, "font.family" => "serif"])
 
-import RWUtilities
+#import RWUtilities
 #import VisualizationTools
 
 
 include("../examples/helpers/visualization.jl")
+include("../examples/helpers/utils.jl")
 
 
 PyPlot.close("all")
@@ -57,10 +58,10 @@ limit_a = [-5.0; -10.0] # min x1, x2.
 limit_b = [5.0; 10.0] # max x1, x2.
 x_ranges = collect( LinRange(limit_a[d], limit_b[d], N_array[d]) for d = 1:D )
 
-#X_nD = RWUtilities.ranges2collection(x_ranges, Val(D)) # x1 is vertical.
+#X_nD = ranges2collection(x_ranges, Val(D)) # x1 is vertical.
 
 # force x1 to be horizontal instead of vertical.
-X_nD = RWUtilities.ranges2collection(reverse(x_ranges), Val(D)) # x1 is horizontal.
+X_nD = ranges2collection(reverse(x_ranges), Val(D)) # x1 is horizontal.
 for i = 1:length(X_nD)
     X_nD[i] = reverse(X_nD[i])
 end
@@ -101,8 +102,8 @@ f_X_nD, [], "x", fig_num, "Oracle")
 
 #X = collect( randn(D) for n = 1:N )
 
-X = collect( [RWUtilities.convertcompactdomain(rand(), 0.0, 1.0, limit_a[1], limit_b[1]);
-RWUtilities.convertcompactdomain(rand(), 0.0, 1.0, limit_a[2], limit_b[2])] for n = 1:N )
+X = collect( [convertcompactdomain(rand(), 0.0, 1.0, limit_a[1], limit_b[1]);
+convertcompactdomain(rand(), 0.0, 1.0, limit_a[2], limit_b[2])] for n = 1:N )
 y = f.(X)
 
 X1 = collect( X[n][1] for n = 1:length(X) )
