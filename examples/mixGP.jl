@@ -37,6 +37,7 @@ fig_num = 1
 D = 2
 σ² = 1e-5
 N = 850
+#N = 35000
 
 # if 0 and 1 are included, we have posdef error, or rank = N - 2.
 #x_range = LinRange(-1, 2, N)
@@ -109,7 +110,9 @@ X2 = collect( X[n][2] for n = 1:length(X) )
 
 
 levels = 3 # 2^(levels-1) leaf nodes. Must be larger than 1.
-
+if N > 10000
+    levels = 5
+end
 root, X_parts, X_parts_inds = PatchMixtureKriging.setuppartition(X, levels)
 
 
@@ -150,7 +153,7 @@ hps = PatchMixtureKriging.fetchhyperplanes(root)
 η = PatchMixtureKriging.MixtureGPType(X_set, hps)
 
 # fit RKHS.
-println("Begin query:")
+println("Begin fitting, N = $(length(X)):")
 Y_set = collect( y[X_set_inds[n]] for n = 1:length(X_set_inds))
 @time PatchMixtureKriging.fitmixtureGP!(η, Y_set, θ, σ²)
 println()
@@ -171,10 +174,10 @@ radius = 0.3
 weight_θ = PatchMixtureKriging.Spline34KernelType(1/radius)
 #PatchMixtureKriging.evalkernel(0.9, weight_θ) # cut-off at radius.
 
-
+println("Begin querying, Nq = $(length(Xq)):")
 δ = 1e-5 # allowed border at segmentation boundaries.
 debug_vars = PatchMixtureKriging.MixtureGPDebugType(1.0)
-PatchMixtureKriging.querymixtureGP!(Yq, Vq, Xq, η, root, levels, radius, δ, θ, σ², weight_θ, debug_vars)
+@time PatchMixtureKriging.querymixtureGP!(Yq, Vq, Xq, η, root, levels, radius, δ, θ, σ², weight_θ, debug_vars)
 
 q_X_nD = reshape(Yq, size(f_X_nD))
 Xq_nD = reshape(Xq, size(f_X_nD))
